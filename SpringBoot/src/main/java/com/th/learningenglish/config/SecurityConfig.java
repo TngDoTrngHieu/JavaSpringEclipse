@@ -1,0 +1,46 @@
+package com.th.learningenglish.config;
+
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+
+@Configuration
+public class SecurityConfig {
+
+	private static final String SECRET = "12576576587689778901222222222222";
+
+	@Bean
+	public JwtDecoder jwtDecoder() {
+		SecretKeySpec key = new SecretKeySpec(SECRET.getBytes(), "HmacSHA256");
+		return NimbusJwtDecoder.withSecretKey(key).build();
+	}
+
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers("/error").permitAll().anyRequest().authenticated())
+				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
+		return http.build();
+	}
+
+	@Bean
+	public Cloudinary cloudinary() {
+		return new Cloudinary(ObjectUtils.asMap("cloud_name", "dyuhodi7a", "api_key", "918856967439272", "api_secret",
+				"anmwPziYC5Bg-Sq7IHZyR55EdLk", "secure", true));
+	}
+}
