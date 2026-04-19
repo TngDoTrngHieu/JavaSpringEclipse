@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,6 +50,7 @@ public class Categories implements Serializable {
 	private CategoryTypes categoryType;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+	@JsonIgnore
 	private Set<Lessons> lessonsSet;
 
 	@PrePersist

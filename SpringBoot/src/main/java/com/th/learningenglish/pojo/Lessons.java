@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -60,15 +62,19 @@ public class Lessons implements Serializable {
 	private LessonTypes lessonType;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "lesson")
+	@JsonIgnore
 	private Set<Sections> sectionsSet;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "lesson")
+	@JsonIgnore
 	private Set<PracticeSessions> practiceSessionsSet;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "lesson")
+	@JsonIgnore
 	private Set<UserWritingAnswers> userWritingAnswersSet;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "lesson")
+	@JsonIgnore
 	private Set<UserSpeakingAnswers> userSpeakingAnswersSet;
 
 	@PrePersist

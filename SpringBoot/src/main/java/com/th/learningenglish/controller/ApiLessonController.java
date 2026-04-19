@@ -38,12 +38,12 @@ public class ApiLessonController {
 		return lessonService.createLesson(lesson);
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping("/lessons/{id}")
 	public Lessons updateLesson(@PathVariable Long id, @RequestBody Lessons lesson) {
 		return lessonService.updateLesson(id, lesson);
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/lessons/{id}")
 	public String deleteLesson(@PathVariable Long id) {
 		lessonService.deleteLesson(id);
 		return "Deleted";

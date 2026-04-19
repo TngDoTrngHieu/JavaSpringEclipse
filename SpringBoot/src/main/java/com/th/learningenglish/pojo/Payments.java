@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -62,6 +64,7 @@ public class Payments implements Serializable {
 	private Users user;
 
 	@OneToMany(mappedBy = "payment")
+	@JsonIgnore
 	private Set<UserVips> userVipsSet;
 
 	public enum PaymentMethod {

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,6 +51,7 @@ public class VipPackages implements Serializable {
 	private boolean isActive = true;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "vipPackage")
+	@JsonIgnore
 	private Set<UserVips> userVipsSet;
 
 	public VipPackages() {

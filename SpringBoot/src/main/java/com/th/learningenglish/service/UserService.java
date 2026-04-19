@@ -1,6 +1,7 @@
 package com.th.learningenglish.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,5 +114,39 @@ public class UserService {
 		}
 
 		return userRepository.save(user);
+	}
+
+	public List<Users> getAllUsers() {
+		return userRepository.findAll();
+	}
+
+	public Users getUserById(Long id) {
+		return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+	}
+
+	public Users updateUserById(Long id, Map<String, String> params) {
+		Users user = getUserById(id);
+
+		if (params.get("firstname") != null) {
+			user.setFirstname(params.get("firstname"));
+		}
+		if (params.get("lastname") != null) {
+			user.setLastname(params.get("lastname"));
+		}
+		if (params.get("email") != null) {
+			user.setEmail(params.get("email"));
+		}
+		if (params.get("username") != null) {
+			user.setUsername(params.get("username"));
+		}
+		if (params.get("password") != null && !params.get("password").isEmpty()) {
+			user.setPasswordHash(passwordEncoder.encode(params.get("password")));
+		}
+
+		return userRepository.save(user);
+	}
+
+	public void deleteUserById(Long id) {
+		userRepository.deleteById(id);
 	}
 }

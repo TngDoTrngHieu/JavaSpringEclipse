@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,6 +42,7 @@ public class UserAnswers implements Serializable {
 	private LocalDateTime updatedAt;
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JsonIgnore
 	@JoinColumn(name = "session_id", nullable = false)
 	private PracticeSessions session;
 

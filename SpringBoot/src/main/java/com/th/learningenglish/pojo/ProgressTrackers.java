@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -52,6 +54,7 @@ public class ProgressTrackers implements Serializable {
 	private Users user;
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JsonIgnore
 	@JoinColumn(name = "study_plan_id", nullable = false)
 	private StudyPlans studyPlan;
 

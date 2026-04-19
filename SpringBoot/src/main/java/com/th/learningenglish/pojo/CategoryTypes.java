@@ -3,6 +3,8 @@ package com.th.learningenglish.pojo;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +33,7 @@ public class CategoryTypes implements Serializable {
 	private String name;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "categoryType")
+	@JsonIgnore
 	private Set<Categories> categoriesSet;
 
 	public CategoryTypes() {
