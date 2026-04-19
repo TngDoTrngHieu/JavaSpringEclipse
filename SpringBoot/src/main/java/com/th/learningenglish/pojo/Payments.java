@@ -38,9 +38,6 @@ public class Payments implements Serializable {
 	@Column(name = "amount", nullable = false, precision = 10, scale = 2)
 	private BigDecimal amount;
 
-	@Column(name = "months")
-	private Integer months;
-
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "payment_method", nullable = false)
@@ -62,6 +59,11 @@ public class Payments implements Serializable {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private Users user;
+
+	@NotNull
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "vip_package_id", nullable = false)
+	private VipPackages vipPackage;
 
 	@OneToMany(mappedBy = "payment")
 	@JsonIgnore
@@ -97,14 +99,6 @@ public class Payments implements Serializable {
 
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
-	}
-
-	public Integer getMonths() {
-		return months;
-	}
-
-	public void setMonths(Integer months) {
-		this.months = months;
 	}
 
 	public PaymentMethod getPaymentMethod() {
@@ -145,6 +139,14 @@ public class Payments implements Serializable {
 
 	public void setUser(Users user) {
 		this.user = user;
+	}
+
+	public VipPackages getVipPackage() {
+		return vipPackage;
+	}
+
+	public void setVipPackage(VipPackages vipPackage) {
+		this.vipPackage = vipPackage;
 	}
 
 	public Set<UserVips> getUserVipsSet() {

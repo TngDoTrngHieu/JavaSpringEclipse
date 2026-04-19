@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.th.learningenglish.dto.LessonDetailDTO;
+import com.th.learningenglish.dto.LessonUpdateDTO;
+import com.th.learningenglish.dto.ResultDTO;
+import com.th.learningenglish.dto.SubmitRequest;
 import com.th.learningenglish.pojo.Lessons;
 import com.th.learningenglish.service.LessonsService;
 
@@ -29,8 +33,13 @@ public class ApiLessonController {
 	}
 
 	@GetMapping("/lessons/{id}")
-	public Lessons getLesson(@PathVariable Long id) {
-		return lessonService.getLessonById(id);
+	public LessonDetailDTO getLesson(@PathVariable Long id) {
+		return lessonService.getLessonDetail(id);
+	}
+
+	@PostMapping("/lessons/submit")
+	public ResultDTO submit(@RequestBody SubmitRequest req) {
+		return lessonService.submit(req);
 	}
 
 	@PostMapping("/lessons")
@@ -39,8 +48,9 @@ public class ApiLessonController {
 	}
 
 	@PutMapping("/lessons/{id}")
-	public Lessons updateLesson(@PathVariable Long id, @RequestBody Lessons lesson) {
-		return lessonService.updateLesson(id, lesson);
+	public LessonDetailDTO updateLesson(@PathVariable Long id, @RequestBody LessonUpdateDTO dto) {
+		lessonService.updateLesson(id, dto);
+		return lessonService.getLessonDetail(id);
 	}
 
 	@DeleteMapping("/lessons/{id}")

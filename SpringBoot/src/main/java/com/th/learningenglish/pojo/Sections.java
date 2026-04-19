@@ -63,7 +63,6 @@ public class Sections implements Serializable {
 	private Lessons lesson;
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JsonIgnore
 	@JoinColumn(name = "section_type_id", nullable = false)
 	private SectionTypes sectionType;
 

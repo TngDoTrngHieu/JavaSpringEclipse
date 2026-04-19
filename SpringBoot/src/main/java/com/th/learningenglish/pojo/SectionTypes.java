@@ -3,6 +3,8 @@ package com.th.learningenglish.pojo;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,6 +40,7 @@ public class SectionTypes implements Serializable {
 	private SaveType saveType = SaveType.AUTO;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "sectionType")
+	@JsonIgnore
 	private Set<Sections> sectionsSet;
 
 	public enum SaveType {

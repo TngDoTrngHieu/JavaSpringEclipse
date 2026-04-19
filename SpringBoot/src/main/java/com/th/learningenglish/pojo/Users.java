@@ -47,6 +47,7 @@ public class Users implements Serializable {
 
 	@NotNull
 	@Size(min = 1, max = 255)
+	@JsonIgnore
 	@Column(name = "password_hash", nullable = false, length = 255)
 	private String passwordHash;
 

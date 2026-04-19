@@ -3,6 +3,8 @@ package com.th.learningenglish.pojo;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -54,6 +56,7 @@ public class Vocabularies implements Serializable {
 	private LocalDateTime updatedAt;
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JsonIgnore
 	@JoinColumn(name = "user_id", nullable = false)
 	private Users user;
 
