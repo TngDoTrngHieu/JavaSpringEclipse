@@ -31,14 +31,24 @@ public class VocabularyService {
 
 	@Transactional
 	public Vocabularies add(VocabDTO dto, String username) {
-		if (dto == null || !StringUtils.hasText(dto.getWord())) {
+		if (dto == null) {
+			throw new RuntimeException("Invalid data");
+		}
+
+		if (!StringUtils.hasText(dto.getWord())) {
 			throw new RuntimeException("Word is required");
 		}
+
+		if (!StringUtils.hasText(dto.getMeaning())) {
+			dto.setMeaning("");
+		}
+
 		Users user = getUserByUsername(username);
 		String normalizedWord = dto.getWord().trim();
 
 		if (vocabRepo.existsByUserAndWordIgnoreCase(user, normalizedWord)) {
-			throw new RuntimeException("Word already exists: " + normalizedWord);
+			return vocabRepo.findByUserAndWordIgnoreCase(user, normalizedWord)
+					.orElseThrow(() -> new RuntimeException("Word already exists: " + normalizedWord));
 		}
 
 		Vocabularies v = new Vocabularies();
@@ -76,5 +86,56 @@ public class VocabularyService {
 			return vocabRepo.findByUser(user);
 		}
 		return vocabRepo.findByUserAndWordContainingIgnoreCase(user, keyword.trim());
+	}
+
+	@Transactional(readOnly = true)
+	public Vocabularies getOne(Long id, String username) {
+		Vocabularies v = vocabRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Not found"));
+
+		if (v.getUser() == null || !v.getUser().getUsername().equals(username)) {
+			throw new RuntimeException("Unauthorized");
+		}
+
+		return v;
+	}
+
+	@Transactional(readOnly = true)
+	public String buildRagContext(String username, String question) {
+		Users user = getUserByUsername(username);
+
+		if (question == null || question.trim().isEmpty()) {
+			return "";
+		}
+
+		String keyword = question.toLowerCase().split(" ")[0];
+
+		List<Vocabularies> list = vocabRepo.findByUser(user);
+
+		list = list.stream()
+				.filter(v -> v.getWord() != null &&
+						v.getWord().toLowerCase().contains(keyword))
+				.limit(3)
+				.toList();
+
+		if (list.isEmpty()) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+
+		for (Vocabularies v : list) {
+			sb.append("Word: ").append(nullSafe(v.getWord())).append("\n");
+			sb.append("Meaning: ").append(nullSafe(v.getMeaning())).append("\n");
+			sb.append("Example: ").append(nullSafe(v.getExample())).append("\n");
+			sb.append("Note: ").append(nullSafe(v.getNote())).append("\n");
+			sb.append("---\n");
+		}
+
+		return sb.toString();
+	}
+
+	private String nullSafe(String s) {
+		return s == null ? "" : s.trim();
 	}
 }

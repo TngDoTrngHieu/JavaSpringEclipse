@@ -1,7 +1,9 @@
 package com.th.learningenglish.controller;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,5 +43,59 @@ public class ApiVocabularyController {
 	@GetMapping("/search")
 	public List<Vocabularies> search(@RequestParam String keyword, Principal p) {
 		return vocabularyService.search(keyword, p.getName());
+	}
+
+	@GetMapping("/{id}")
+	public Vocabularies getOne(@PathVariable Long id, Principal p) {
+		return vocabularyService.getOne(id, p.getName());
+	}
+
+	@PostMapping("/from-ai")
+	public Vocabularies saveFromAI(
+			@RequestBody Map<String, String> req,
+			Principal p) {
+		String text = req.get("text");
+
+		Map<String, String> parsed = parseAI(text);
+
+		VocabDTO dto = new VocabDTO();
+		dto.setWord(parsed.getOrDefault("word", ""));
+		dto.setMeaning(parsed.getOrDefault("meaning", ""));
+		dto.setExample(parsed.getOrDefault("example", ""));
+		dto.setNote(parsed.getOrDefault("note", ""));
+
+		return vocabularyService.add(dto, p.getName());
+	}
+
+	private Map<String, String> parseAI(String text) {
+		Map<String, String> map = new HashMap<>();
+		if (text == null) {
+			return map;
+		}
+
+		String[] lines = text.split("\\r?\\n");
+
+		for (String line : lines) {
+			String trimmed = line.trim();
+			if (trimmed.isEmpty())
+				continue;
+
+			int idx = trimmed.indexOf(":");
+			if (idx > 0) {
+				String key = trimmed.substring(0, idx).trim().toLowerCase();
+				String val = trimmed.substring(idx + 1).trim();
+				if (key.startsWith("word")) {
+					map.put("word", val);
+				} else if (key.startsWith("meaning")) {
+					map.put("meaning", val);
+				} else if (key.startsWith("example")) {
+					map.put("example", val);
+				} else if (key.startsWith("note")) {
+					map.put("note", val);
+				}
+			}
+		}
+
+		return map;
 	}
 }

@@ -1,6 +1,7 @@
 package com.th.learningenglish.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,7 +11,9 @@ import com.th.learningenglish.pojo.Vocabularies;
 public interface VocabularyRepository extends JpaRepository<Vocabularies, Long> {
 	boolean existsByUserAndWordIgnoreCase(Users user, String word);
 
+	Optional<Vocabularies> findByUserAndWordIgnoreCase(Users user, String word);
+
 	List<Vocabularies> findByUser(Users user);
 
-	List<Vocabularies> findByUserAndWordContainingIgnoreCase(Users user, String keyword);
+	List<Vocabularies> findByUserAndWordContainingIgnoreCase(Users user, String keyword);;
 }

@@ -5,11 +5,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,46 +70,6 @@ public class ApiPaymentController {
 					"status", payment.getStatus().name()));
 		} catch (RuntimeException ex) {
 			return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage(), "resultCode", 1));
-		}
-	}
-
-	@GetMapping("/momo/callback")
-	public ResponseEntity<?> momoCallback(@RequestParam Map<String, String> params) {
-
-		String orderId = params.get("orderId");
-		String resultCode = params.get("resultCode");
-
-		if (orderId == null || orderId.isBlank()) {
-			return ResponseEntity.badRequest().body("Missing orderId");
-		}
-
-		if (!"0".equals(resultCode)) {
-			return ResponseEntity.badRequest().body("Payment failed");
-		}
-
-		// 🔥 CHÍNH CHỖ NÀY tạo VIP
-		paymentService.confirmPayment(orderId);
-
-		return ResponseEntity.ok("Payment success - VIP activated");
-	}
-
-	@PutMapping("/{id}")
-	public ResponseEntity<Payments> update(@PathVariable Long id, @RequestBody Payments payload) {
-		try {
-			return ResponseEntity.ok(paymentService.update(id, payload));
-		} catch (RuntimeException ex) {
-			return ResponseEntity.notFound().build();
-		}
-	}
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
-		try {
-			paymentService.findById(id);
-			paymentService.delete(id);
-			return ResponseEntity.ok(Map.of("message", "Deleted"));
-		} catch (RuntimeException ex) {
-			return ResponseEntity.notFound().build();
 		}
 	}
 
