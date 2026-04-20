@@ -37,8 +37,8 @@ public class ApiUserController {
 	}
 
 	@GetMapping("/profile")
-	public Users getProfile(Authentication auth) {
-		return userService.getProfile(auth.getName());
+	public ResponseEntity<?> getProfile(Authentication auth) {
+		return ResponseEntity.ok(userService.getProfile(auth.getName()));
 	}
 
 	@PutMapping("/{id}")

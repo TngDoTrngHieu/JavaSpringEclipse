@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.th.learningenglish.pojo.Payments;
@@ -30,7 +31,11 @@ public class ApiPaymentController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Payments> getById(@PathVariable Long id) {
-		try { return ResponseEntity.ok(paymentService.findById(id)); } catch (RuntimeException ex) { return ResponseEntity.notFound().build(); }
+		try {
+			return ResponseEntity.ok(paymentService.findById(id));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@PostMapping
@@ -47,29 +52,67 @@ public class ApiPaymentController {
 		}
 	}
 
+	@GetMapping("/momo/return")
+	public ResponseEntity<?> momoReturn(@RequestParam Map<String, String> params) {
+		String orderId = params.get("orderId");
+		String resultCode = params.get("resultCode");
+
+		boolean success = "0".equals(resultCode);
+
+		String redirectUrl = "http://localhost:3000/upgrade-vip" + "?success=" + success + "&orderId=" + orderId;
+
+		return ResponseEntity.status(302).header("Location", redirectUrl).build();
+	}
+
 	@PostMapping("/confirm/momo-ipn")
 	public ResponseEntity<?> confirmFromMomoIpn(@RequestBody Map<String, String> ipnPayload) {
 		try {
 			Payments payment = paymentService.confirmPaymentFromMomoIpn(ipnPayload);
-			return ResponseEntity.ok(Map.of(
-					"message", "IPN processed",
-					"transactionCode", payment.getTransactionCode(),
+			return ResponseEntity.ok(Map.of("message", "IPN processed", "transactionCode", payment.getTransactionCode(),
 					"status", payment.getStatus().name()));
 		} catch (RuntimeException ex) {
-			return ResponseEntity.badRequest().body(Map.of(
-					"message", ex.getMessage(),
-					"resultCode", 1));
+			return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage(), "resultCode", 1));
 		}
+	}
+
+	@GetMapping("/momo/callback")
+	public ResponseEntity<?> momoCallback(@RequestParam Map<String, String> params) {
+
+		String orderId = params.get("orderId");
+		String resultCode = params.get("resultCode");
+
+		if (orderId == null || orderId.isBlank()) {
+			return ResponseEntity.badRequest().body("Missing orderId");
+		}
+
+		if (!"0".equals(resultCode)) {
+			return ResponseEntity.badRequest().body("Payment failed");
+		}
+
+		// 🔥 CHÍNH CHỖ NÀY tạo VIP
+		paymentService.confirmPayment(orderId);
+
+		return ResponseEntity.ok("Payment success - VIP activated");
 	}
 
 	@PutMapping("/{id}")
 	public ResponseEntity<Payments> update(@PathVariable Long id, @RequestBody Payments payload) {
-		try { return ResponseEntity.ok(paymentService.update(id, payload)); } catch (RuntimeException ex) { return ResponseEntity.notFound().build(); }
+		try {
+			return ResponseEntity.ok(paymentService.update(id, payload));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
-		try { paymentService.findById(id); paymentService.delete(id); return ResponseEntity.ok(Map.of("message", "Deleted")); } catch (RuntimeException ex) { return ResponseEntity.notFound().build(); }
+		try {
+			paymentService.findById(id);
+			paymentService.delete(id);
+			return ResponseEntity.ok(Map.of("message", "Deleted"));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	public static class ProcessPaymentRequest {

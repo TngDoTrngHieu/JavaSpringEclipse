@@ -1,8 +1,11 @@
 package com.th.learningenglish.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +18,7 @@ import com.th.learningenglish.dto.LoginRequest;
 import com.th.learningenglish.dto.RegisterRequest;
 import com.th.learningenglish.pojo.Users;
 import com.th.learningenglish.repository.UserRepository;
+import com.th.learningenglish.repository.UserVipRepository;
 import com.th.learningenglish.security.JwtUtils;
 
 @Service
@@ -22,6 +26,9 @@ public class UserService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private UserVipRepository userVipRepository;
 
 	@Autowired
 	private Cloudinary cloudinary;
@@ -82,8 +89,33 @@ public class UserService {
 		return passwordEncoder.matches(password, u.getPasswordHash());
 	}
 
-	public Users getProfile(String username) {
-		return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+	public Map<String, Object> getProfile(String username) {
+		Users user = userRepository.findByUsername(username)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("id", user.getId());
+		data.put("username", user.getUsername());
+
+		Optional<com.th.learningenglish.pojo.UserVips> vipOpt = userVipRepository
+				.findTopByUserIdOrderByExpireAtDesc(user.getId());
+		if (vipOpt.isPresent()) {
+			com.th.learningenglish.pojo.UserVips vip = vipOpt.get();
+			boolean isVip = vip.getExpireAt() != null && vip.getExpireAt().isAfter(LocalDateTime.now());
+			data.put("isVip", isVip);
+			data.put("vipExpireAt", vip.getExpireAt());
+		} else {
+			data.put("isVip", false);
+			data.put("vipExpireAt", null);
+		}
+
+		// include other profile fields if needed
+		data.put("firstname", user.getFirstname());
+		data.put("lastname", user.getLastname());
+		data.put("email", user.getEmail());
+		data.put("avatarUrl", user.getAvatarUrl());
+
+		return data;
 	}
 
 	public Users updateProfile(String username, Map<String, String> params, MultipartFile avatar) {
