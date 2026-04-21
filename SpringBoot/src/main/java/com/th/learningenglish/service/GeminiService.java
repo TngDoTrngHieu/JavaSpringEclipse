@@ -134,11 +134,23 @@ public class GeminiService {
 	// 4. CHẤM ĐIỂM SPEAKING
 	// ==========================================
 	public String evaluateSpeakingTranscript(String title, List<String> questions, String transcript) throws Exception {
-		String prompt = "You are an IELTS Speaking examiner.\n...\n" // (Rút gọn phần text để tránh dài, bạn dùng câu
-																		// prompt cũ của bạn ở đây)
-				+ "Return a valid JSON object with fields: transcript, pronunciation_score, fluency_score, coherence_score, lexical_resource_score, grammar_score, overall_score, feedback.\n"
-				+ "Do NOT include markdown, backticks, or code formatting.";
+		String prompt = """
+				You are an IELTS Speaking examiner.
+				Evaluate the candidate's spoken response based on these criteria:
+				- Pronunciation
+				- Fluency & Coherence
+				- Lexical Resource
+				- Grammatical Range & Accuracy
 
+				Return a valid JSON with fields:
+				transcript, pronunciation_score, fluency_score, coherence_score,
+				lexical_resource_score, grammar_score, overall_score, feedback.
+				Band scores should be float numbers from 0.0 to 9.0.
+
+				The 'feedback' field must be a single string in Vietnamese,
+				with section headings in English.
+				Do NOT include markdown or code formatting.
+				""";
 		StringBuilder questionPrompt = new StringBuilder();
 		questionPrompt.append("Prompt Title: ").append(title).append("\nQuestions:\n");
 		for (int i = 0; i < questions.size(); i++) {
