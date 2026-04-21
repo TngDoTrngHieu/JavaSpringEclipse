@@ -51,9 +51,7 @@ public class ApiVocabularyController {
 	}
 
 	@PostMapping("/from-ai")
-	public Vocabularies saveFromAI(
-			@RequestBody Map<String, String> req,
-			Principal p) {
+	public Vocabularies saveFromAI(@RequestBody Map<String, String> req, Principal p) {
 		String text = req.get("text");
 
 		Map<String, String> parsed = parseAI(text);
@@ -74,9 +72,9 @@ public class ApiVocabularyController {
 		}
 
 		String[] lines = text.split("\\r?\\n");
-
 		for (String line : lines) {
-			String trimmed = line.trim();
+
+			String trimmed = line.trim().replaceAll("\\*+", "").trim();
 			if (trimmed.isEmpty())
 				continue;
 
@@ -84,15 +82,14 @@ public class ApiVocabularyController {
 			if (idx > 0) {
 				String key = trimmed.substring(0, idx).trim().toLowerCase();
 				String val = trimmed.substring(idx + 1).trim();
-				if (key.startsWith("word")) {
+				if (key.startsWith("word"))
 					map.put("word", val);
-				} else if (key.startsWith("meaning")) {
+				else if (key.startsWith("meaning"))
 					map.put("meaning", val);
-				} else if (key.startsWith("example")) {
+				else if (key.startsWith("example"))
 					map.put("example", val);
-				} else if (key.startsWith("note")) {
+				else if (key.startsWith("note"))
 					map.put("note", val);
-				}
 			}
 		}
 

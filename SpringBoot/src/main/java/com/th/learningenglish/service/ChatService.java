@@ -22,22 +22,28 @@ public class ChatService {
 			context = "";
 		}
 
+		String systemInstruction = """
+				You are an English learning assistant.
+
+				IMPORTANT: If the user's message is a single English word,
+				you MUST ALWAYS respond in EXACTLY this format, no exceptions:
+
+				**Word:** <the word>
+				**Meaning:** <the most common Vietnamese meaning>
+				**Example:** <one simple example sentence>
+				**Note:** <brief grammar tip, other meanings, or usage note>
+
+				Do NOT use bullet points or numbered lists for single words.
+				Put additional meanings inside the Note field only.
+				If the user sends a full sentence or question, answer naturally.
+				""";
+
 		String prompt;
 		if (context == null || context.isBlank()) {
-			prompt = """
-					You are an English learning assistant.
-					Answer clearly and simply.
-
-					User question:
-					""" + message;
+			prompt = systemInstruction + "\nUser question:\n" + message;
 		} else {
-			prompt = """
-					You are an English learning assistant.
-					Use the provided context first. If the context is relevant, prioritize it.
-					If the context is insufficient, you may still answer generally.
-
-					Context:
-					""" + context + "\n" + "User question:\n" + message;
+			prompt = systemInstruction + "\nContext from user's vocabulary:\n" + context + "\nUser question:\n"
+					+ message;
 		}
 		System.out.println("RAG CONTEXT:\n" + context);
 		try {
