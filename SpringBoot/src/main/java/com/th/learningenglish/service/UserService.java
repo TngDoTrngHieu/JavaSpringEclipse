@@ -96,6 +96,8 @@ public class UserService {
 		Map<String, Object> data = new HashMap<>();
 		data.put("id", user.getId());
 		data.put("username", user.getUsername());
+		// include role so frontend can show admin UI when appropriate
+		data.put("role", user.getRole() != null ? user.getRole().name() : "USER");
 
 		Optional<com.th.learningenglish.pojo.UserVips> vipOpt = userVipRepository
 				.findTopByUserIdOrderByExpireAtDesc(user.getId());

@@ -1,2 +1,2 @@
 .env
-src/main/resources/application.properties
+SpringBoot/src/main/resources/application.properties
