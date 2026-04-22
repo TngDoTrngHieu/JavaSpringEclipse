@@ -1,12 +1,14 @@
 package com.th.learningenglish.controller;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,5 +57,25 @@ public class AuthController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(Collections.singletonMap("error", "Server error"));
 		}
+	}
+
+	@PostMapping("/google")
+	public ResponseEntity<?> verifyGoogleToken(@RequestBody Map<String, String> body) {
+		try {
+			return ResponseEntity.ok(userService.loginWithGoogleToken(body.get("token")));
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Collections.singletonMap("error", e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonMap("error", "Server error"));
+		}
+	}
+
+	@GetMapping("/google-client-id")
+	public ResponseEntity<?> getGoogleClientId() {
+		Map<String, String> res = new HashMap<>();
+		res.put("client_id", userService.getGoogleClientId());
+		return ResponseEntity.ok(res);
 	}
 }

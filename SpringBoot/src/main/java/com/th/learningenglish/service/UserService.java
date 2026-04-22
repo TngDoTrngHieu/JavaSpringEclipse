@@ -3,13 +3,18 @@ package com.th.learningenglish.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
@@ -35,6 +40,9 @@ public class UserService {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+
+	@Value("${google.client.id:}")
+	private String googleClientId;
 
 	public Users register(RegisterRequest req, MultipartFile avatar) {
 
@@ -83,6 +91,84 @@ public class UserService {
 		}
 	}
 
+	public String getGoogleClientId() {
+		return googleClientId;
+	}
+
+	public Map<String, Object> loginWithGoogleToken(String idTokenString) {
+		if (idTokenString == null || idTokenString.isBlank()) {
+			throw new RuntimeException("Google token is required");
+		}
+		if (googleClientId == null || googleClientId.isBlank()) {
+			throw new RuntimeException("google.client-id is missing in application properties");
+		}
+
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + idTokenString;
+			Map<?, ?> tokenInfo = restTemplate.getForObject(url, Map.class);
+
+			if (tokenInfo == null || !googleClientId.equals(String.valueOf(tokenInfo.get("aud")))) {
+				throw new RuntimeException("Invalid ID token or audience mismatch");
+			}
+
+			String email = tokenInfo.get("email") != null ? String.valueOf(tokenInfo.get("email")) : null;
+			if (email == null || email.isBlank()) {
+				throw new RuntimeException("Google account has no email");
+			}
+			String fullname = tokenInfo.get("name") != null ? String.valueOf(tokenInfo.get("name")) : email;
+			String pictureUrl = tokenInfo.get("picture") != null ? String.valueOf(tokenInfo.get("picture")) : null;
+
+			Users user = userRepository.findByEmail(email)
+					.orElseGet(() -> createUserFromGoogle(email, fullname, pictureUrl));
+			String token = JwtUtils.generateToken(user.getUsername());
+
+			Map<String, Object> response = new LinkedHashMap<>();
+			response.put("token", token);
+			response.put("email", user.getEmail());
+			response.put("fullname", fullname);
+			response.put("avatar", user.getAvatarUrl());
+			response.put("username", user.getUsername());
+			return response;
+		} catch (HttpClientErrorException hce) {
+			throw new RuntimeException("Google tokeninfo error: " + hce.getResponseBodyAsString());
+		} catch (RuntimeException re) {
+			throw re;
+		} catch (Exception e) {
+			throw new RuntimeException("Google login error: " + e.getMessage(), e);
+		}
+	}
+
+	private Users createUserFromGoogle(String email, String fullname, String avatarUrl) {
+		Users u = new Users();
+		u.setEmail(email);
+
+		String[] nameParts = fullname != null ? fullname.trim().split("\\s+", 2) : new String[0];
+		String firstname = nameParts.length > 0 ? nameParts[0] : email;
+		String lastname = nameParts.length > 1 ? nameParts[1] : "";
+		u.setFirstname(firstname);
+		u.setLastname(lastname);
+
+		String baseUsername = email.contains("@") ? email.substring(0, email.indexOf("@")) : email;
+		u.setUsername(generateUniqueUsername(baseUsername));
+
+		u.setRole(Users.Role.USER);
+		u.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString()));
+		u.setAvatarUrl(avatarUrl);
+		return userRepository.save(u);
+	}
+
+	private String generateUniqueUsername(String base) {
+		String normalizedBase = (base == null || base.isBlank()) ? "google_user" : base.replaceAll("\\s+", "_");
+		String candidate = normalizedBase;
+		int i = 1;
+		while (userRepository.findByUsername(candidate).isPresent()) {
+			candidate = normalizedBase + "_" + i;
+			i++;
+		}
+		return candidate;
+	}
+
 	public boolean authenticate(String username, String password) {
 		Users u = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -90,8 +176,7 @@ public class UserService {
 	}
 
 	public Map<String, Object> getProfile(String username) {
-		Users user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+		Users user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 
 		Map<String, Object> data = new HashMap<>();
 		data.put("id", user.getId());

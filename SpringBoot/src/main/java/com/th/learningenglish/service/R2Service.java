@@ -18,8 +18,8 @@ public class R2Service {
 	@Value("${r2.bucket}")
 	private String bucket;
 
-	@Value("${r2.account-id}")
-	private String accountId;
+	@Value("${r2.public_endpoint}")
+	private String publicEndpoint;
 
 	public R2Service(S3Client s3) {
 		this.s3 = s3;
@@ -41,6 +41,8 @@ public class R2Service {
 		s3.putObject(PutObjectRequest.builder().bucket(bucket).key(key).contentType(file.getContentType()).build(),
 				software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes()));
 
-		return "https://" + accountId + ".r2.cloudflarestorage.com/" + bucket + "/" + key;
+		String endpoint = publicEndpoint.endsWith("/") ? publicEndpoint.substring(0, publicEndpoint.length() - 1)
+				: publicEndpoint;
+		return endpoint + "/" + key;
 	}
 }
