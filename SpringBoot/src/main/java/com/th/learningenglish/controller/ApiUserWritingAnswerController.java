@@ -19,16 +19,23 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.th.learningenglish.pojo.Lessons;
+import com.th.learningenglish.pojo.ProgressTrackers;
 import com.th.learningenglish.pojo.UserWritingAnswers;
 import com.th.learningenglish.pojo.Users;
-import com.th.learningenglish.repository.LessonRepository;
-import com.th.learningenglish.repository.UserRepository;
 import com.th.learningenglish.service.GeminiService;
+import com.th.learningenglish.service.LessonsService;
+import com.th.learningenglish.service.PracticeSessionService;
+import com.th.learningenglish.service.ProgressTrackerService;
+import com.th.learningenglish.service.UserService;
 import com.th.learningenglish.service.UserWritingAnswerService;
 
 @RestController
 @RequestMapping("/api/user-writing-answers")
 public class ApiUserWritingAnswerController {
+	private final ProgressTrackerService progressTrackerService;
+
+	private final PracticeSessionService practiceSessionService;
+
 	@Autowired
 	private UserWritingAnswerService userWritingAnswerService;
 
@@ -36,10 +43,16 @@ public class ApiUserWritingAnswerController {
 	private GeminiService geminiService;
 
 	@Autowired
-	private UserRepository userRepository;
+	private UserService userService;
 
 	@Autowired
-	private LessonRepository lessonRepository;
+	private LessonsService lessonsService;
+
+	ApiUserWritingAnswerController(PracticeSessionService practiceSessionService,
+			ProgressTrackerService progressTrackerService) {
+		this.practiceSessionService = practiceSessionService;
+		this.progressTrackerService = progressTrackerService;
+	}
 
 	@GetMapping
 	public List<UserWritingAnswers> getAll() {
@@ -89,8 +102,7 @@ public class ApiUserWritingAnswerController {
 					: 0;
 
 			// Fetch lesson TRƯỚC rồi mới dùng
-			Lessons lesson = lessonRepository.findByIdWithLessonType(lessonId)
-					.orElseThrow(() -> new RuntimeException("Lesson not found"));
+			Lessons lesson = lessonsService.getLessonByIdWithLessonType(lessonId);
 
 			// Giờ mới detect taskType
 			String lessonTypeName = lesson.getLessonType().getName().toLowerCase();
@@ -117,12 +129,19 @@ public class ApiUserWritingAnswerController {
 			item.setOverallScore(new BigDecimal(node.path("overall_score").asText("0")));
 			item.setDurationSeconds(duration);
 
-			Users user = userRepository.findByUsername(principal.getName())
-					.orElseThrow(() -> new RuntimeException("User not found"));
+			Users user = userService.getUserByUsername(principal.getName());
 			item.setUser(user);
 			item.setLesson(lesson);
 
-			return ResponseEntity.ok(userWritingAnswerService.create(item));
+			UserWritingAnswers saved = userWritingAnswerService.create(item);
+
+			practiceSessionService.recordSession(user.getId(), lesson.getId(), saved.getOverallScore(), duration,
+					saved.getFeedback());
+
+			progressTrackerService.updateProgress(user.getId(), ProgressTrackers.Skill.WRITING,
+					saved.getOverallScore());
+
+			return ResponseEntity.ok(saved);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
 		}

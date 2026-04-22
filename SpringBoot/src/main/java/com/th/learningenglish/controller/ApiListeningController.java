@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Objects;
+import java.math.BigDecimal;
+import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,35 +17,54 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.th.learningenglish.dto.ListeningSubmitDTO;
-import com.th.learningenglish.dto.ResultDTO;
+import com.th.learningenglish.pojo.Lessons;
+import com.th.learningenglish.pojo.PracticeSessions;
+import com.th.learningenglish.pojo.ProgressTrackers;
 import com.th.learningenglish.pojo.Sections;
-import com.th.learningenglish.repository.LessonRepository;
-import com.th.learningenglish.repository.SectionRepository;
+import com.th.learningenglish.pojo.UserAnswers;
+import com.th.learningenglish.pojo.Users;
+import com.th.learningenglish.service.LessonsService;
+import com.th.learningenglish.service.PracticeSessionService;
+import com.th.learningenglish.service.ProgressTrackerService;
+import com.th.learningenglish.service.SectionService;
+import com.th.learningenglish.service.UserService;
+import com.th.learningenglish.service.UserAnswerService;
 
 @RestController
 @RequestMapping("/api/listening")
 public class ApiListeningController {
 
 	@Autowired
-	private LessonRepository lessonRepository;
+	private LessonsService lessonsService;
 
 	@Autowired
-	private SectionRepository sectionRepository;
+	private SectionService sectionService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private PracticeSessionService practiceSessionService;
+
+	@Autowired
+	private UserAnswerService userAnswerService;
+
+	@Autowired
+	private ProgressTrackerService progressTrackerService;
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	@PostMapping("/submit")
-	public ResponseEntity<?> submit(@RequestBody ListeningSubmitDTO dto) {
+	public ResponseEntity<?> submit(@RequestBody ListeningSubmitDTO dto, Principal principal) {
 		try {
 			if (dto == null || dto.getLessonId() == null || dto.getLessonId() <= 0) {
 				return ResponseEntity.badRequest().body(Map.of("error", "lessonId is required"));
 			}
-			if (!lessonRepository.existsById(dto.getLessonId())) {
-				return ResponseEntity.badRequest().body(Map.of("error", "Lesson not found"));
-			}
 
 			Map<String, String> answers = dto.getAnswers();
-			List<Sections> sections = sectionRepository.findByLesson_IdOrderByPositionAsc(dto.getLessonId());
+			Lessons lesson = lessonsService.getLessonById(dto.getLessonId());
+			Users user = userService.getUserByUsername(principal.getName());
+			List<Sections> sections = sectionService.getSectionsByLesson(dto.getLessonId());
 
 			int score = 0;
 			int total = 0;
@@ -51,6 +72,7 @@ public class ApiListeningController {
 			// Map for frontend to show correct answers: sectionId (string) -> raw correct
 			// answer
 			Map<String, String> correctAnswers = new HashMap<>();
+			Map<Long, String> rawCorrectAnswersBySectionId = new HashMap<>();
 
 			for (Sections s : sections) {
 				if (s == null || s.getId() == null || s.getCorrectAnswer() == null) {
@@ -64,6 +86,7 @@ public class ApiListeningController {
 
 				// store raw value for frontend display/highlight
 				correctAnswers.put(String.valueOf(s.getId()), rawCorrect == null ? null : rawCorrect);
+				rawCorrectAnswersBySectionId.put(s.getId(), rawCorrect);
 
 				total++;
 				String userAnswer = answers != null ? normalizeAnswer(answers.get(String.valueOf(s.getId()))) : null;
@@ -71,6 +94,34 @@ public class ApiListeningController {
 					score++;
 				}
 			}
+
+			BigDecimal finalScore = BigDecimal.valueOf(score);
+			PracticeSessions session = practiceSessionService.recordSession(
+					user.getId(),
+					lesson.getId(),
+					finalScore,
+					0,
+					"Listening score: " + score + "/" + total);
+
+			for (Sections section : sections) {
+				if (section == null || section.getId() == null || !rawCorrectAnswersBySectionId.containsKey(section.getId())) {
+					continue;
+				}
+
+				String userRawAnswer = answers != null ? answers.get(String.valueOf(section.getId())) : null;
+				String expected = normalizeAnswer(rawCorrectAnswersBySectionId.get(section.getId()));
+				String actual = normalizeAnswer(userRawAnswer);
+
+				UserAnswers userAnswer = new UserAnswers();
+				userAnswer.setSession(session);
+				userAnswer.setSection(section);
+				userAnswer.setAnswer(userRawAnswer);
+				userAnswer.setIsCorrect(Objects.equals(expected, actual));
+				userAnswer.setScore(Objects.equals(expected, actual) ? BigDecimal.ONE : BigDecimal.ZERO);
+				userAnswerService.create(userAnswer);
+			}
+
+			progressTrackerService.updateProgress(user.getId(), ProgressTrackers.Skill.LISTENING, finalScore);
 
 			return ResponseEntity.ok(Map.of(
 					"score", score,

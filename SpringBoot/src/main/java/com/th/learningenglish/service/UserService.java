@@ -158,6 +158,10 @@ public class UserService {
 		return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 	}
 
+	public Users getUserByUsername(String username) {
+		return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+	}
+
 	public Users updateUserById(Long id, Map<String, String> params) {
 		Users user = getUserById(id);
 

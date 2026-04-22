@@ -17,16 +17,10 @@ import java.io.IOException;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.th.learningenglish.pojo.Categories;
-import com.th.learningenglish.pojo.LessonTypes;
-import com.th.learningenglish.repository.CategoryRepository;
-import com.th.learningenglish.repository.LessonRepository;
-import com.th.learningenglish.repository.LessonTypeRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.th.learningenglish.dto.LessonDetailDTO;
-import com.th.learningenglish.dto.LessonUpdateDTO;
 import com.th.learningenglish.dto.ResultDTO;
 import com.th.learningenglish.dto.SubmitRequest;
 import com.th.learningenglish.pojo.Lessons;
@@ -40,15 +34,6 @@ public class ApiLessonController {
 
 	@Autowired
 	private Cloudinary cloudinary;
-
-	@Autowired
-	private CategoryRepository categoryRepo;
-
-	@Autowired
-	private LessonTypeRepository lessonTypeRepo;
-
-	@Autowired
-	private LessonRepository lessonRepo;
 
 	@GetMapping("/lessons")
 	public List<Lessons> getLessons(@RequestParam Map<String, String> params) {
@@ -80,17 +65,7 @@ public class ApiLessonController {
 			imageUrl = upload.get("secure_url").toString();
 		}
 
-		Categories c = categoryRepo.findById(categoryId).orElseThrow();
-		LessonTypes t = lessonTypeRepo.findById(lessonTypeId).orElseThrow();
-
-		Lessons l = new Lessons();
-		l.setTitle(title);
-		l.setContent(content);
-		l.setImageUrl(imageUrl);
-		l.setCategory(c);
-		l.setLessonType(t);
-
-		return lessonRepo.save(l);
+		return lessonService.createLessonFromForm(title, content, categoryId, lessonTypeId, imageUrl);
 	}
 
 	@PutMapping(value = "/lessons/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -102,23 +77,13 @@ public class ApiLessonController {
 			@RequestParam Long lessonTypeId,
 			@RequestParam(required = false) MultipartFile image) throws IOException {
 
-		Lessons l = lessonRepo.findById(id).orElseThrow();
-
-		l.setTitle(title);
-		l.setContent(content);
-
-		Categories c = categoryRepo.findById(categoryId).orElseThrow();
-		LessonTypes t = lessonTypeRepo.findById(lessonTypeId).orElseThrow();
-
-		l.setCategory(c);
-		l.setLessonType(t);
-
+		String imageUrl = null;
 		if (image != null && !image.isEmpty()) {
 			Map upload = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
-			l.setImageUrl(upload.get("secure_url").toString());
+			imageUrl = upload.get("secure_url").toString();
 		}
 
-		lessonRepo.save(l);
+		lessonService.updateLessonFromForm(id, title, content, categoryId, lessonTypeId, imageUrl);
 
 		return lessonService.getLessonDetail(id);
 	}

@@ -18,14 +18,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.th.learningenglish.pojo.Lessons;
+import com.th.learningenglish.pojo.ProgressTrackers;
 import com.th.learningenglish.pojo.Sections;
 import com.th.learningenglish.pojo.UserSpeakingAnswers;
 import com.th.learningenglish.pojo.Users;
-import com.th.learningenglish.repository.LessonRepository;
-import com.th.learningenglish.repository.SectionRepository;
-import com.th.learningenglish.repository.UserRepository;
 import com.th.learningenglish.service.GeminiService;
+import com.th.learningenglish.service.LessonsService;
+import com.th.learningenglish.service.PracticeSessionService;
+import com.th.learningenglish.service.ProgressTrackerService;
 import com.th.learningenglish.service.R2Service;
+import com.th.learningenglish.service.SectionService;
+import com.th.learningenglish.service.UserService;
 import com.th.learningenglish.service.UserSpeakingAnswerService;
 
 import jakarta.transaction.Transactional;
@@ -33,6 +36,10 @@ import jakarta.transaction.Transactional;
 @RestController
 @RequestMapping("/api/speaking")
 public class ApiSpeakingController {
+
+	private final ProgressTrackerService progressTrackerService;
+
+	private final PracticeSessionService practiceSessionService;
 
 	@Autowired
 	private R2Service r2Service;
@@ -44,13 +51,19 @@ public class ApiSpeakingController {
 	private UserSpeakingAnswerService speakingAnswerService;
 
 	@Autowired
-	private UserRepository userRepository;
+	private UserService userService;
 
 	@Autowired
-	private LessonRepository lessonRepository;
+	private LessonsService lessonsService;
 
 	@Autowired
-	private SectionRepository sectionRepository;
+	private SectionService sectionService;
+
+	ApiSpeakingController(PracticeSessionService practiceSessionService,
+			ProgressTrackerService progressTrackerService) {
+		this.practiceSessionService = practiceSessionService;
+		this.progressTrackerService = progressTrackerService;
+	}
 
 	// Upload audio lên R2
 	@PostMapping("/upload")
@@ -74,10 +87,9 @@ public class ApiSpeakingController {
 				return ResponseEntity.badRequest().body(Map.of("error", "Transcript is required"));
 
 			// Fetch lesson + questions từ sections
-			Lessons lesson = lessonRepository.findByIdWithLessonType(lessonId)
-					.orElseThrow(() -> new RuntimeException("Lesson not found"));
+			Lessons lesson = lessonsService.getLessonByIdWithLessonType(lessonId);
 
-			List<Sections> sections = sectionRepository.findByLesson_IdOrderByPositionAsc(lessonId);
+			List<Sections> sections = sectionService.getSectionsByLesson(lessonId);
 			ObjectMapper mapper = new ObjectMapper();
 			List<String> questions = new ArrayList<>();
 			for (Sections s : sections) {
@@ -117,12 +129,19 @@ public class ApiSpeakingController {
 			item.setOverallScore(new BigDecimal(node.path("overall_score").asText("0")));
 			item.setDurationSeconds(duration);
 
-			Users user = userRepository.findByUsername(principal.getName())
-					.orElseThrow(() -> new RuntimeException("User not found"));
+			Users user = userService.getUserByUsername(principal.getName());
 			item.setUser(user);
 			item.setLesson(lesson);
 
-			return ResponseEntity.ok(speakingAnswerService.create(item));
+			UserSpeakingAnswers saved = speakingAnswerService.create(item);
+
+			practiceSessionService.recordSession(user.getId(), lesson.getId(), saved.getOverallScore(), duration,
+					saved.getFeedback());
+
+			progressTrackerService.updateProgress(user.getId(), ProgressTrackers.Skill.SPEAKING,
+					saved.getOverallScore());
+
+			return ResponseEntity.ok(saved);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
 		}

@@ -1,5 +1,6 @@
 package com.th.learningenglish.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.th.learningenglish.pojo.LessonTypes;
 import com.th.learningenglish.pojo.PracticeSessions;
 import com.th.learningenglish.service.PracticeSessionService;
 
@@ -30,7 +33,11 @@ public class ApiPracticeSessionController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<PracticeSessions> getById(@PathVariable Long id) {
-		try { return ResponseEntity.ok(practiceSessionService.findById(id)); } catch (RuntimeException ex) { return ResponseEntity.notFound().build(); }
+		try {
+			return ResponseEntity.ok(practiceSessionService.findById(id));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@PostMapping
@@ -40,11 +47,35 @@ public class ApiPracticeSessionController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<PracticeSessions> update(@PathVariable Long id, @RequestBody PracticeSessions payload) {
-		try { return ResponseEntity.ok(practiceSessionService.update(id, payload)); } catch (RuntimeException ex) { return ResponseEntity.notFound().build(); }
+		try {
+			return ResponseEntity.ok(practiceSessionService.update(id, payload));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
-		try { practiceSessionService.findById(id); practiceSessionService.delete(id); return ResponseEntity.ok(Map.of("message", "Deleted")); } catch (RuntimeException ex) { return ResponseEntity.notFound().build(); }
+		try {
+			practiceSessionService.findById(id);
+			practiceSessionService.delete(id);
+			return ResponseEntity.ok(Map.of("message", "Deleted"));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@GetMapping("/my")
+	public ResponseEntity<List<PracticeSessions>> getMy(
+			Principal principal,
+			@RequestParam(required = false) LessonTypes.Skill skill) {
+		try {
+			if (skill != null) {
+				return ResponseEntity.ok(practiceSessionService.findMySessionsBySkill(principal.getName(), skill));
+			}
+			return ResponseEntity.ok(practiceSessionService.findMySessions(principal.getName()));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 }

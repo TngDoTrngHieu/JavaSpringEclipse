@@ -41,6 +41,12 @@ public class UserAnswers implements Serializable {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
+	@Column(name = "answer")
+	private String answer;
+
+	@Column(name = "is_correct")
+	private Boolean isCorrect;
+
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JsonIgnore
 	@JoinColumn(name = "session_id", nullable = false)
@@ -109,6 +115,22 @@ public class UserAnswers implements Serializable {
 
 	public void setSection(Sections section) {
 		this.section = section;
+	}
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}
+
+	public Boolean getIsCorrect() {
+		return isCorrect;
+	}
+
+	public void setIsCorrect(Boolean isCorrect) {
+		this.isCorrect = isCorrect;
 	}
 
 	@Override

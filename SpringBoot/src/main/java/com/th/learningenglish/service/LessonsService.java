@@ -98,6 +98,13 @@ public class LessonsService {
 	}
 
 	@Transactional(readOnly = true)
+	public Lessons getLessonByIdWithLessonType(Long id) {
+		validateLessonId(id, "getLessonByIdWithLessonType");
+		return lessonRepo.findByIdWithLessonType(id)
+				.orElseThrow(() -> new RuntimeException("Lesson not found for id=" + id));
+	}
+
+	@Transactional(readOnly = true)
 	public LessonDetailDTO getLessonDetail(Long lessonId) {
 		validateLessonId(lessonId, "getLessonDetail");
 		Lessons lesson = lessonRepo.findById(lessonId)
@@ -153,6 +160,24 @@ public class LessonsService {
 	}
 
 	@Transactional
+	public Lessons createLessonFromForm(String title, String content, Long categoryId, Long lessonTypeId, String imageUrl) {
+		validatePositiveId(categoryId, "categoryId");
+		validatePositiveId(lessonTypeId, "lessonTypeId");
+		Categories category = categoryRepo.findById(categoryId)
+				.orElseThrow(() -> new RuntimeException("Category not found for categoryId=" + categoryId));
+		LessonTypes lessonType = lessonTypeRepo.findById(lessonTypeId)
+				.orElseThrow(() -> new RuntimeException("Lesson type not found for lessonTypeId=" + lessonTypeId));
+
+		Lessons lesson = new Lessons();
+		lesson.setTitle(title);
+		lesson.setContent(content);
+		lesson.setImageUrl(imageUrl);
+		lesson.setCategory(category);
+		lesson.setLessonType(lessonType);
+		return lessonRepo.save(lesson);
+	}
+
+	@Transactional
 	public Lessons updateLesson(Long lessonId, LessonUpdateDTO dto) {
 		validateLessonId(lessonId, "updateLesson");
 		if (dto == null) {
@@ -190,6 +215,29 @@ public class LessonsService {
 		l.setLessonType(lesson.getLessonType());
 
 		return lessonRepo.save(l);
+	}
+
+	@Transactional
+	public Lessons updateLessonFromForm(Long id, String title, String content, Long categoryId, Long lessonTypeId,
+			String imageUrlOrNull) {
+		validateLessonId(id, "updateLessonFromForm");
+		validatePositiveId(categoryId, "categoryId");
+		validatePositiveId(lessonTypeId, "lessonTypeId");
+
+		Lessons lesson = lessonRepo.findById(id).orElseThrow(() -> new RuntimeException("Lesson not found for id=" + id));
+		Categories category = categoryRepo.findById(categoryId)
+				.orElseThrow(() -> new RuntimeException("Category not found for categoryId=" + categoryId));
+		LessonTypes lessonType = lessonTypeRepo.findById(lessonTypeId)
+				.orElseThrow(() -> new RuntimeException("Lesson type not found for lessonTypeId=" + lessonTypeId));
+
+		lesson.setTitle(title);
+		lesson.setContent(content);
+		lesson.setCategory(category);
+		lesson.setLessonType(lessonType);
+		if (imageUrlOrNull != null) {
+			lesson.setImageUrl(imageUrlOrNull);
+		}
+		return lessonRepo.save(lesson);
 	}
 
 	@Transactional
