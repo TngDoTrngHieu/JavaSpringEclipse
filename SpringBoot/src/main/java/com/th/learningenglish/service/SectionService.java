@@ -1,9 +1,11 @@
 package com.th.learningenglish.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.th.learningenglish.pojo.Sections;
 import com.th.learningenglish.repository.SectionRepository;
@@ -12,6 +14,8 @@ import com.th.learningenglish.repository.SectionRepository;
 public class SectionService {
 	@Autowired
 	private SectionRepository sectionRepo;
+	@Autowired
+	private R2Service r2Service;
 
 	public List<Sections> getAllSections() {
 		return sectionRepo.findAll();
@@ -43,5 +47,9 @@ public class SectionService {
 
 	public void deleteSection(Long id) {
 		sectionRepo.deleteById(id);
+	}
+
+	public String uploadAudio(MultipartFile audio) throws IOException {
+		return r2Service.upload(audio);
 	}
 }
