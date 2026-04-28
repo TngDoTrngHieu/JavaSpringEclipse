@@ -54,10 +54,12 @@ public class ApiPaymentController {
 	public ResponseEntity<?> momoReturn(@RequestParam Map<String, String> params) {
 		String orderId = params.get("orderId");
 		String resultCode = params.get("resultCode");
+		String amount = params.get("amount");
 
 		boolean success = "0".equals(resultCode);
 
-		String redirectUrl = "http://localhost:3000/upgrade-vip" + "?success=" + success + "&orderId=" + orderId;
+		String redirectUrl = "http://localhost:3000/upgrade-vip" + "?success=" + success + "&orderId=" + orderId
+				+ "&amount=" + amount;
 
 		return ResponseEntity.status(302).header("Location", redirectUrl).build();
 	}

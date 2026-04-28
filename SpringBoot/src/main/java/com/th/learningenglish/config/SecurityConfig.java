@@ -39,7 +39,8 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
 						.requestMatchers("/error").permitAll().requestMatchers("/api/payments/confirm/momo-ipn")
 						.permitAll().requestMatchers("/api/payments/momo/return").permitAll()
-						.requestMatchers("/api/chat").permitAll().anyRequest().authenticated())
+						.requestMatchers("/api/chat").permitAll().requestMatchers("/api/ai/generate-quiz").permitAll()
+						.anyRequest().authenticated())
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
 
 		return http.build();

@@ -42,4 +42,32 @@ public class JwtUtils {
 		}
 		return null;
 	}
+
+	/** Generate a short-lived reset token that encodes email. */
+	public static String generateResetToken(String email, long expirationMs) throws Exception {
+		JWSSigner signer = new MACSigner(SECRET);
+
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(email)
+				.expirationTime(new Date(System.currentTimeMillis() + expirationMs)).issueTime(new Date()).build();
+
+		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+
+		signedJWT.sign(signer);
+
+		return signedJWT.serialize();
+	}
+
+	/** Validate reset token and return email if valid, otherwise null. */
+	public static String validateResetTokenAndGetEmail(String token) throws Exception {
+		SignedJWT signedJWT = SignedJWT.parse(token);
+		JWSVerifier verifier = new MACVerifier(SECRET);
+
+		if (signedJWT.verify(verifier)) {
+			Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
+			if (expiration.after(new Date())) {
+				return signedJWT.getJWTClaimsSet().getSubject();
+			}
+		}
+		return null;
+	}
 }

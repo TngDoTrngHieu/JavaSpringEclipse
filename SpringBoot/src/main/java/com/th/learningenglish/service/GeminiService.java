@@ -82,9 +82,8 @@ public class GeminiService {
 		return sendRequestToGemini(root, GEMINI_URL);
 	}
 
-	// ==========================================
 	// 3. CHẤM ĐIỂM WRITING TASK 1 (CÓ HÌNH ẢNH)
-	// ==========================================
+
 	public String evaluateTask1Essay(String essayContent, String imageUrl) throws Exception {
 		String prompt = "You are an IELTS examiner.\n"
 				+ "Please evaluate the following Writing Task 1 report using IELTS criteria:\n" + "- Task Achievement\n"
@@ -130,9 +129,8 @@ public class GeminiService {
 		return sendRequestToGemini(root, GEMINI_URL);
 	}
 
-	// ==========================================
 	// 4. CHẤM ĐIỂM SPEAKING
-	// ==========================================
+
 	public String evaluateSpeakingTranscript(String title, List<String> questions, String transcript) throws Exception {
 		String prompt = """
 				You are an IELTS Speaking examiner.
@@ -168,9 +166,44 @@ public class GeminiService {
 		return sendRequestToGemini(root, GEMINI_URL);
 	}
 
-	// ==========================================
-	// CÁC HÀM TIỆN ÍCH DÙNG CHUNG BÊN TRONG (PRIVATE)
-	// ==========================================
+	// 5. TẠO CÂU HỎI TRẮC NGHIỆM TỪ ĐOẠN VĂN (JSON ARRAY)
+	public String generateQuizFromPassage(String passage) throws Exception {
+		String prompt = """
+				You are an IELTS reading question generator.
+
+				Based ONLY on the following passage, generate 5 multiple-choice questions.
+
+				PASSAGE:
+				%s
+
+				REQUIREMENTS:
+				- All questions must be in English
+				- Each question must have exactly 4 options
+				- Only ONE correct answer
+				- The correctAnswer must EXACTLY match one option
+				- Do NOT create information outside the passage
+				- Avoid duplicate or similar questions
+
+				OUTPUT FORMAT (STRICT JSON ONLY):
+				[
+				  {
+				    "question": "string",
+				    "options": ["A", "B", "C", "D"],
+				    "correctAnswer": "one of options"
+				  }
+				]
+
+				Return ONLY JSON. No explanation.
+				""".formatted(passage);
+
+		ObjectNode root = mapper.createObjectNode();
+		ArrayNode contents = mapper.createArrayNode();
+		root.set("contents", contents);
+
+		contents.add(createTurn("user", arr(obj("text", prompt))));
+
+		return sendRequestToGemini(root, GEMINI_URL);
+	}
 
 	// Gửi request từ Json Node xây dựng sẵn
 	private String sendRequestToGemini(ObjectNode rootNode, String targetUrl) throws Exception {

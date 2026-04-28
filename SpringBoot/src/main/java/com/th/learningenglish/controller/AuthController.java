@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.th.learningenglish.dto.LoginRequest;
 import com.th.learningenglish.dto.RegisterRequest;
 import com.th.learningenglish.pojo.Users;
+import com.th.learningenglish.security.JwtUtils;
+import com.th.learningenglish.service.EmailService;
 import com.th.learningenglish.service.UserService;
 
 @RestController
@@ -27,12 +29,13 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private EmailService emailService;
 
 	@PostMapping(path = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public Users register(@RequestParam Map<String, String> params,
 			@RequestParam(value = "avatar", required = false) MultipartFile avatar) {
 
-		// 🔥 convert Map → DTO
 		RegisterRequest req = new RegisterRequest();
 		req.setFirstname(params.get("firstname"));
 		req.setLastname(params.get("lastname"));
@@ -77,5 +80,59 @@ public class AuthController {
 		Map<String, String> res = new HashMap<>();
 		res.put("client_id", userService.getGoogleClientId());
 		return ResponseEntity.ok(res);
+	}
+
+	@PostMapping("/forgot-password")
+	public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
+		String email = body.get("email");
+		if (email == null || email.isBlank()) {
+			return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Email is required"));
+		}
+
+		try {
+			Users u = userService.getUserByEmail(email);
+			// generate reset token (5 minutes)
+			String token = JwtUtils.generateResetToken(email, 5 * 60 * 1000);
+			// build link (frontend host assumed)
+			String link = "http://localhost:3000/reset-password?token=" + token;
+			emailService.sendResetLink(email, link);
+
+			return ResponseEntity.ok(Collections.singletonMap("message", "Email đã được gửi tới gmail"));
+		} catch (RuntimeException re) {
+
+			return ResponseEntity.ok(Collections.singletonMap("message", "Gmail chưa được đăng ký vào trang web."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonMap("error", "Server error"));
+		}
+	}
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+		String token = body.get("token");
+		String newPassword = body.get("newPassword");
+		if (token == null || token.isBlank() || newPassword == null || newPassword.isBlank()) {
+			return ResponseEntity.badRequest()
+					.body(Collections.singletonMap("error", "token and newPassword are required"));
+		}
+		if (newPassword.length() < 6) {
+			return ResponseEntity.badRequest()
+					.body(Collections.singletonMap("error", "newPassword must be at least 6 characters"));
+		}
+		try {
+			String email = JwtUtils.validateResetTokenAndGetEmail(token);
+			if (email == null)
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(Collections.singletonMap("error", "Invalid or expired token"));
+			Users u = userService.getUserByEmail(email);
+			userService.updateUserById(u.getId(), Collections.singletonMap("password", newPassword));
+			return ResponseEntity.ok(Collections.singletonMap("message", "Password reset successful"));
+		} catch (RuntimeException re) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Collections.singletonMap("error", "User not found"));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonMap("error", "Server error"));
+		}
 	}
 }
