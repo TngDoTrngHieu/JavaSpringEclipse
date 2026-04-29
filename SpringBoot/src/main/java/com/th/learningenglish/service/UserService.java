@@ -205,6 +205,13 @@ public class UserService {
 		return data;
 	}
 
+	// Trả về true nếu user đang có gói VIP còn hạn
+	public boolean isUserVip(String username) {
+		Users user = userRepository.findByUsername(username)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+		return userVipRepository.existsByUserIdAndExpireAtAfter(user.getId(), LocalDateTime.now());
+	}
+
 	public Users updateProfile(String username, Map<String, String> params, MultipartFile avatar) {
 
 		Users user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));

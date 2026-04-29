@@ -13,13 +13,30 @@ public class VipPackageService {
 	@Autowired
 	private VipPackageRepository repository;
 
-	public List<VipPackages> findAll() { return repository.findAll(); }
-	public VipPackages findById(Long id) { return repository.findById(id).orElseThrow(() -> new RuntimeException("Vip package not found")); }
-	public VipPackages create(VipPackages item) { return repository.save(item); }
+	public List<VipPackages> findAll() {
+		return repository.findAll();
+	}
+
+	public VipPackages findById(Long id) {
+		return repository.findById(id).orElseThrow(() -> new RuntimeException("Vip package not found"));
+	}
+
+	public VipPackages create(VipPackages item) {
+		return repository.save(item);
+	}
+
 	public VipPackages update(Long id, VipPackages payload) {
 		VipPackages c = findById(id);
-		c.setName(payload.getName()); c.setDescription(payload.getDescription()); c.setMonths(payload.getMonths()); c.setPrice(payload.getPrice()); c.setIsActive(payload.getIsActive());
+		c.setName(payload.getName());
+		c.setDescription(payload.getDescription());
+		c.setMonths(payload.getMonths());
+		c.setPrice(payload.getPrice());
+		c.setIsActive(payload.getIsActive());
 		return repository.save(c);
 	}
-	public void delete(Long id) { repository.deleteById(id); }
+
+	public void delete(Long id) {
+		repository.deleteById(id);
+	}
+
 }

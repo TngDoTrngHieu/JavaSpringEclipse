@@ -1,5 +1,6 @@
 package com.th.learningenglish.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,6 @@ public interface UserVipRepository extends JpaRepository<UserVips, Long> {
 	boolean existsByPaymentId(Long paymentId);
 
 	Optional<UserVips> findTopByUserIdOrderByExpireAtDesc(Long userId);
+
+	boolean existsByUserIdAndExpireAtAfter(Long userId, LocalDateTime now);
 }

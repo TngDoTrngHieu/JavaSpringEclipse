@@ -2,6 +2,7 @@ package com.th.learningenglish.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.th.learningenglish.pojo.UserVips;
 import com.th.learningenglish.service.UserVipService;
+import com.th.learningenglish.service.UserService;
 
 @RestController
-@RequestMapping("/api/user-vips")
+@RequestMapping({"/api/user-vips", "/api/user"})
 public class ApiUserVipController {
 	@Autowired
 	private UserVipService userVipService;
+
+	@Autowired
+	private UserService userService;
 
 	@GetMapping
 	public List<UserVips> getAll() {
@@ -46,5 +51,15 @@ public class ApiUserVipController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
 		try { userVipService.findById(id); userVipService.delete(id); return ResponseEntity.ok(Map.of("message", "Deleted")); } catch (RuntimeException ex) { return ResponseEntity.notFound().build(); }
+	}
+
+	@GetMapping("/is-vip")
+	public ResponseEntity<?> isVip(Principal principal) {
+		if (principal == null) {
+			return ResponseEntity.status(401).body(Map.of("error", "Vui lòng đăng nhập"));
+		}
+
+		boolean vip = userService.isUserVip(principal.getName());
+		return ResponseEntity.ok(Map.of("vip", vip));
 	}
 }

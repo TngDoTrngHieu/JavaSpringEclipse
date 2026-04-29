@@ -2,8 +2,11 @@ package com.th.learningenglish.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +24,9 @@ import com.th.learningenglish.service.PaymentService;
 public class ApiPaymentController {
 	@Autowired
 	private PaymentService paymentService;
+
+	@Value("${app.frontend-url:http://localhost:3000}")
+	private String frontendUrl;
 
 	@GetMapping
 	public List<Payments> getAll() {
@@ -57,9 +63,12 @@ public class ApiPaymentController {
 		String amount = params.get("amount");
 
 		boolean success = "0".equals(resultCode);
+		String encodedOrderId = URLEncoder.encode(orderId != null ? orderId : "", StandardCharsets.UTF_8);
+		String encodedAmount = URLEncoder.encode(amount != null ? amount : "", StandardCharsets.UTF_8);
 
-		String redirectUrl = "http://localhost:3000/upgrade-vip" + "?success=" + success + "&orderId=" + orderId
-				+ "&amount=" + amount;
+		String redirectUrl = success
+				? frontendUrl + "/thankyou?orderId=" + encodedOrderId + "&amount=" + encodedAmount
+				: frontendUrl + "/upgrade-vip?success=false&orderId=" + encodedOrderId + "&amount=" + encodedAmount;
 
 		return ResponseEntity.status(302).header("Location", redirectUrl).build();
 	}
