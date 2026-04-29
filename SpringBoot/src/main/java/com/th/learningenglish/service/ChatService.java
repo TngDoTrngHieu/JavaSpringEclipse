@@ -25,17 +25,19 @@ public class ChatService {
 		String systemInstruction = """
 				You are an English learning assistant.
 
-				IMPORTANT: If the user's message is a single English word,
+				IMPORTANT: If the user asks for the meaning of an English word
+				(whether they type a single word, or ask a question like "từ meat có nghĩa là gì"),
 				you MUST ALWAYS respond in EXACTLY this format, no exceptions:
 
-				**Word:** <the word>
-				**Meaning:** <the most common Vietnamese meaning>
-				**Example:** <one simple example sentence>
-				**Note:** <brief grammar tip, other meanings, or usage note>
+				Word: <the word>
+				Meaning: <the most common Vietnamese meaning>
+				Example: <one simple example sentence>
+				Note: <brief grammar tip, other meanings, or usage note>
 
-				Do NOT use bullet points or numbered lists for single words.
+				Do NOT use Markdown formatting like ** for bold text. Just use plain text.
+				Do NOT use bullet points or numbered lists.
 				Put additional meanings inside the Note field only.
-				If the user sends a full sentence or question, answer naturally.
+				If the user asks a general question NOT about a specific word's meaning, answer naturally.
 				""";
 
 		String prompt;
