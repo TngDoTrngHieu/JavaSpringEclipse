@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── Sidebar ── */
+.bg-dark {
+    background: #0f172a !important;
+}
+
+.text-success {
+    color: #34d399 !important;
+}
+
+.nav-link {
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #e2e8f0 !important;
+}
+
+/* ── Main content ── */
+.bg-light {
+    background: #f1f5f9 !important;
+}
+
+.rounded-4 {
+    border-radius: 16px !important;
+}
+
+/* ── Tables ── */
+.table thead th {
+    background: #f8fafc;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.table tbody td {
+    font-size: 0.875rem;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: #f8fafc;
+}
+
+/* ── Buttons ── */
+.btn-success {
+    background: #10b981 !important;
+    border-color: #10b981 !important;
+    font-weight: 600;
+}
+
+.btn-success:hover {
+    background: #059669 !important;
+    border-color: #059669 !important;
+}
+
+.btn-outline-primary {
+    color: #3b82f6;
+    border-color: #3b82f6;
+    font-size: 0.8rem;
+}
+
+.btn-outline-secondary {
+    font-size: 0.8rem;
+}
+
+.btn-outline-danger {
+    color: #ef4444;
+    border-color: #ef4444;
+    font-size: 0.8rem;
+}
+
+/* ── Modals ── */
+.modal-content {
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #f1f5f9;
+    font-weight: 700;
+}
+
+.modal-footer {
+    border-top: 1px solid #f1f5f9;
+}
+
+/* ── Form controls ── */
+.form-control:focus,
+.form-select:focus {
+    border-color: #34d399;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15);
+}
+
+/* ── Alerts ── */
+.alert {
+    border-radius: 10px;
+    font-size: 0.875rem;
+}
+
+/* ── Cards (Dashboard) ── */
+.card.shadow-sm {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card.shadow-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.display-6 {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+}
