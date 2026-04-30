@@ -12,4 +12,6 @@ public interface ProgressTrackerRepository extends JpaRepository<ProgressTracker
 			ProgressTrackers.Skill skill);
 
 	List<ProgressTrackers> findByUser_IdAndStudyPlan_Id(Long userId, Long planId);
+
+	List<ProgressTrackers> findByUser_UsernameOrderByUpdatedAtDesc(String username);
 }

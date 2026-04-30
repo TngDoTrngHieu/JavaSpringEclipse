@@ -2,7 +2,9 @@ package com.th.learningenglish.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,5 +82,15 @@ public class ProgressTrackerService {
 
 	public void delete(Long id) {
 		repository.deleteById(id);
+	}
+
+	public List<Map<String, Object>> getMyProgress(String username) {
+		List<ProgressTrackers> trackers = repository.findByUser_UsernameOrderByUpdatedAtDesc(username);
+		List<Map<String, Object>> result = new ArrayList<>();
+		for (ProgressTrackers tracker : trackers) {
+			result.add(Map.of("id", tracker.getId(), "skill", tracker.getSkill().name(), "score", tracker.getScore(),
+					"updatedAt", tracker.getUpdatedAt()));
+		}
+		return result;
 	}
 }

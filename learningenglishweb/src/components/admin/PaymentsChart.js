@@ -25,7 +25,6 @@ const getAmount = (p) => {
     return 0;
 };
 
-// Lấy danh sách 12 tháng của một năm cụ thể (VD: 2026-01 -> 2026-12)
 const getMonthsOfYear = (year) => {
     const keys = [];
     for (let i = 1; i <= 12; i++) {

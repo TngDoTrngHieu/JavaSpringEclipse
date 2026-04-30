@@ -14,39 +14,48 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.th.learningenglish.pojo.UserVips;
-import com.th.learningenglish.service.UserVipService;
+import com.th.learningenglish.pojo.ProgressTrackers;
+import com.th.learningenglish.service.ProgressTrackerService;
 
 @RestController
-@RequestMapping("/api/user-vips")
-public class ApiUserVipController {
+@RequestMapping("/api/progress-trackers")
+public class ApiProgressTrackerController {
 	@Autowired
-	private UserVipService userVipService;
+	private ProgressTrackerService progressTrackerService;
 
 	@GetMapping
-	public List<UserVips> getAll() {
-		return userVipService.findAll();
+	public List<ProgressTrackers> getAll() {
+		return progressTrackerService.findAll();
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<UserVips> getById(@PathVariable Long id) {
+	public ResponseEntity<ProgressTrackers> getById(@PathVariable Long id) {
 		try {
-			return ResponseEntity.ok(userVipService.findById(id));
+			return ResponseEntity.ok(progressTrackerService.findById(id));
 		} catch (RuntimeException ex) {
 			return ResponseEntity.notFound().build();
 		}
 	}
 
 	@PostMapping
-	public UserVips create(@RequestBody UserVips item) {
-		return userVipService.create(item);
+	public ProgressTrackers create(@RequestBody ProgressTrackers item) {
+		return progressTrackerService.create(item);
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<ProgressTrackers> update(@PathVariable Long id, @RequestBody ProgressTrackers payload) {
+		try {
+			return ResponseEntity.ok(progressTrackerService.update(id, payload));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
 		try {
-			userVipService.findById(id);
-			userVipService.delete(id);
+			progressTrackerService.findById(id);
+			progressTrackerService.delete(id);
 			return ResponseEntity.ok(Map.of("message", "Deleted"));
 		} catch (RuntimeException ex) {
 			return ResponseEntity.notFound().build();

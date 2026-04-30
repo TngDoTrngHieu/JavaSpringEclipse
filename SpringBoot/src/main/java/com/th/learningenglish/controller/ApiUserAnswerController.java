@@ -14,39 +14,48 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.th.learningenglish.pojo.UserVips;
-import com.th.learningenglish.service.UserVipService;
+import com.th.learningenglish.pojo.UserAnswers;
+import com.th.learningenglish.service.UserAnswerService;
 
 @RestController
-@RequestMapping("/api/user-vips")
-public class ApiUserVipController {
+@RequestMapping("/api/user-answers")
+public class ApiUserAnswerController {
 	@Autowired
-	private UserVipService userVipService;
+	private UserAnswerService userAnswerService;
 
 	@GetMapping
-	public List<UserVips> getAll() {
-		return userVipService.findAll();
+	public List<UserAnswers> getAll() {
+		return userAnswerService.findAll();
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<UserVips> getById(@PathVariable Long id) {
+	public ResponseEntity<UserAnswers> getById(@PathVariable Long id) {
 		try {
-			return ResponseEntity.ok(userVipService.findById(id));
+			return ResponseEntity.ok(userAnswerService.findById(id));
 		} catch (RuntimeException ex) {
 			return ResponseEntity.notFound().build();
 		}
 	}
 
 	@PostMapping
-	public UserVips create(@RequestBody UserVips item) {
-		return userVipService.create(item);
+	public UserAnswers create(@RequestBody UserAnswers item) {
+		return userAnswerService.create(item);
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<UserAnswers> update(@PathVariable Long id, @RequestBody UserAnswers payload) {
+		try {
+			return ResponseEntity.ok(userAnswerService.update(id, payload));
+		} catch (RuntimeException ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
 		try {
-			userVipService.findById(id);
-			userVipService.delete(id);
+			userAnswerService.findById(id);
+			userAnswerService.delete(id);
 			return ResponseEntity.ok(Map.of("message", "Deleted"));
 		} catch (RuntimeException ex) {
 			return ResponseEntity.notFound().build();
