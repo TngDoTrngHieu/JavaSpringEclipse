@@ -85,7 +85,7 @@ public class GeminiService {
 	// 3. CHẤM ĐIỂM WRITING TASK 1 (CÓ HÌNH ẢNH)
 
 	public String evaluateTask1Essay(String essayContent, String imageUrl) throws Exception {
-		String prompt = "You are an IELTS examiner.\n"
+		String prompt = "You are a strict IELTS examiner.\n" + "DO NOT ignore the image." + "Read context clearly "
 				+ "Please evaluate the following Writing Task 1 report using IELTS criteria:\n" + "- Task Achievement\n"
 				+ "- Coherence & Cohesion\n" + "- Lexical Resource\n" + "- Grammatical Range & Accuracy\n\n"
 				+ "You will be provided with the prompt image and the student's response.\n\n"

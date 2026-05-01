@@ -61,6 +61,7 @@ export default function WritingPage() {
         content: essay,
         lessonId: Number(lessonId),
         durationSeconds: duration,
+
       });
       setResult(res.data);
     } catch (e) {

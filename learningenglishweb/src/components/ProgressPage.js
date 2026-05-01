@@ -43,7 +43,6 @@ export default function ProgressPage() {
   const token = cookie.load("token");
   const [planData, setPlanData] = useState(null);
   const [history, setHistory] = useState([]);
-  const [progressList, setProgressList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -54,35 +53,12 @@ export default function ProgressPage() {
     try {
       setLoading(true);
       setErr("");
-      const [planRes, histRes, progRes] = await Promise.all([
+      const [planRes, histRes] = await Promise.all([
         authApis().get(endpoints.studyPlanMy),
         authApis().get(endpoints.practiceHistory),
-        authApis().get(endpoints.progressTrackerMy),
       ]);
       setPlanData(planRes.data);
       setHistory(Array.isArray(histRes.data) ? histRes.data.slice(0, 10) : []);
-      // determine progress list: prefer plan.progress, then progress-trackers endpoint, then derive from history
-      const fromPlan = Array.isArray(planRes.data?.progress) && planRes.data.progress.length ? planRes.data.progress : null;
-      const fromTrackers = Array.isArray(progRes.data) && progRes.data.length ? progRes.data : null;
-      let finalProgress = fromPlan || fromTrackers;
-      if (!finalProgress) {
-        // derive from recent history: map by lesson.lessonType.skill and average
-        const map = {};
-        for (const h of (Array.isArray(histRes.data) ? histRes.data : [])) {
-          const skill = h.lesson?.lessonType?.skill || null;
-          const score = h.score != null ? parseFloat(h.score) : null;
-          if (!skill || score == null) continue;
-          if (!map[skill]) map[skill] = { sum: 0, count: 0 };
-          map[skill].sum += score; map[skill].count += 1;
-        }
-        finalProgress = Object.keys(map).map((k) => ({ skill: k, score: +(map[k].sum / map[k].count).toFixed(2) }));
-      }
-      setProgressList(finalProgress || []);
-      // attach progress into planData for legacy UI that reads planData.progress
-      setPlanData((prev) => ({ ...(prev || {}), progress: finalProgress || [] }));
-      // debug logs
-      // eslint-disable-next-line no-console
-      console.debug("ProgressPage.load: planRes", planRes.data, "progRes", progRes.data, "derived", finalProgress);
     } catch {
       setErr("Không thể tải dữ liệu tiến độ.");
     } finally {
@@ -166,6 +142,7 @@ export default function ProgressPage() {
             </Alert>
           )}
 
+          {/* Skill Scores */}
           <div className="fw-semibold mb-3">Điểm theo kỹ năng</div>
           <Row className="g-3 mb-4">
             {["READING", "LISTENING", "WRITING", "SPEAKING"].map((skill) => {
