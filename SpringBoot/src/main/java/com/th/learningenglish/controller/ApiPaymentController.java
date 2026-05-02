@@ -25,7 +25,7 @@ public class ApiPaymentController {
 	@Autowired
 	private PaymentService paymentService;
 
-	@Value("${app.frontend-url:https://java-spring-eclipse.vercel.app")
+	@Value("${app.frontend-url:https://java-spring-eclipse.vercel.app}")
 	private String frontendUrl;
 
 	@GetMapping
