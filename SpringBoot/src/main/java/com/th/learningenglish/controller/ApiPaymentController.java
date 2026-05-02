@@ -1,9 +1,9 @@
 package com.th.learningenglish.controller;
 
-import java.util.List;
-import java.util.Map;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +25,7 @@ public class ApiPaymentController {
 	@Autowired
 	private PaymentService paymentService;
 
-	@Value("${app.frontend-url:http://localhost:3000}")
+	@Value("${app.frontend-url:https://java-spring-eclipse.vercel.app")
 	private String frontendUrl;
 
 	@GetMapping
@@ -66,8 +66,7 @@ public class ApiPaymentController {
 		String encodedOrderId = URLEncoder.encode(orderId != null ? orderId : "", StandardCharsets.UTF_8);
 		String encodedAmount = URLEncoder.encode(amount != null ? amount : "", StandardCharsets.UTF_8);
 
-		String redirectUrl = success
-				? frontendUrl + "/thankyou?orderId=" + encodedOrderId + "&amount=" + encodedAmount
+		String redirectUrl = success ? frontendUrl + "/thankyou?orderId=" + encodedOrderId + "&amount=" + encodedAmount
 				: frontendUrl + "/upgrade-vip?success=false&orderId=" + encodedOrderId + "&amount=" + encodedAmount;
 
 		return ResponseEntity.status(302).header("Location", redirectUrl).build();
