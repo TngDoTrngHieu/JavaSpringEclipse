@@ -2,12 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import cookie from "react-cookies";
 import { useNavigate } from "react-router-dom";
-// 1. Import thêm Toast và ToastContainer từ react-bootstrap
 import { Toast, ToastContainer, Modal, Button } from "react-bootstrap";
 import { authApis, endpoints } from "./configs";
 
-// ensure default axios base is configured for non-auth calls
-axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 export default function ChatBox() {
     const navigate = useNavigate();
@@ -15,12 +12,11 @@ export default function ChatBox() {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // 2. Thêm State để quản lý hiển thị Toast
     const [toastInfo, setToastInfo] = useState({ show: false, msg: "", variant: "success" });
     const [showVipModal, setShowVipModal] = useState(false);
 
     const token = cookie.load("token");
-    // VIP state: null = unknown / checking, true = vip, false = not vip
+
     const [isVip, setIsVip] = useState(null);
     const [vipChecking, setVipChecking] = useState(false);
     const scrollRef = useRef(null);
@@ -37,7 +33,7 @@ export default function ChatBox() {
 
         let mounted = true;
         setVipChecking(true);
-        // backend exposes profile at /api/users/profile which includes isVip
+
         authApis()
             .get(endpoints.profile)
             .then((res) => {
@@ -78,7 +74,6 @@ export default function ChatBox() {
 
         try {
             const res = await authApis().post("/api/chat", { question: message });
-
             const answer = res?.data?.answer ?? "(không có trả lời)";
             setMessages((prev) => [...prev, { role: "bot", text: "" }]);
             typeText(answer, setMessages);

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Spinner, Card, ProgressBar, Toast, ToastContainer, Modal } from "react-bootstrap";
-import axios from "axios";
 import cookie from "react-cookies";
 import { useNavigate } from "react-router-dom";
 import { authApis, endpoints } from "./configs";
