@@ -196,7 +196,6 @@ public class UserService {
 			data.put("vipExpireAt", null);
 		}
 
-		// include other profile fields if needed
 		data.put("firstname", user.getFirstname());
 		data.put("lastname", user.getLastname());
 		data.put("email", user.getEmail());
@@ -207,8 +206,7 @@ public class UserService {
 
 	// Trả về true nếu user đang có gói VIP còn hạn
 	public boolean isUserVip(String username) {
-		Users user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+		Users user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 		return userVipRepository.existsByUserIdAndExpireAtAfter(user.getId(), LocalDateTime.now());
 	}
 

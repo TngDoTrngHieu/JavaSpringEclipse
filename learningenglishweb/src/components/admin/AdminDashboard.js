@@ -23,7 +23,7 @@ const AdminDashboard = () => {
         users: "—",
         lessons: "—",
         categories: "—",
-        vocabularies: "—",
+
         payments: "—",
     });
     const [paymentsData, setPaymentsData] = useState([]);
@@ -32,18 +32,18 @@ const AdminDashboard = () => {
         const api = authApis();
         (async () => {
             setLoading(true);
-            const [users, lessons, categories, vocabularies, payments] = await Promise.all([
+            const [users, lessons, categories, payments] = await Promise.all([
                 api.get(endpoints.users),
                 api.get(endpoints.lessons),
                 api.get(endpoints.categories),
-                api.get(endpoints.vocabularies),
+
                 api.get(endpoints.payments),
             ]);
             setCounts({
                 users: Array.isArray(users.data) ? users.data.length : "—",
                 lessons: Array.isArray(lessons.data) ? lessons.data.length : "—",
                 categories: Array.isArray(categories.data) ? categories.data.length : "—",
-                vocabularies: Array.isArray(vocabularies.data) ? vocabularies.data.length : "—",
+
                 payments: Array.isArray(payments.data) ? payments.data.length : "—",
             });
             setPaymentsData(Array.isArray(payments.data) ? payments.data : []);
@@ -75,9 +75,7 @@ const AdminDashboard = () => {
                         foot={<Link to="/admin/categories">Quản lý danh mục →</Link>}
                     />
                 </Col>
-                <Col sm={6} xl={4}>
-                    <StatCard title="Từ vựng (toàn hệ thống)" value={counts.vocabularies} loading={loading} />
-                </Col>
+
                 <Col sm={6} xl={4}>
                     <StatCard title="Giao dịch thanh toán" value={counts.payments} loading={loading} />
                 </Col>

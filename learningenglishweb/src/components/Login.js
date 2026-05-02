@@ -39,7 +39,7 @@ const Login = () => {
             const token = res.data.token;
             cookie.save("token", token, { path: "/", maxAge: 86400, sameSite: "lax", secure: false });
             const u = await authApis().get(endpoints.profile);
-            // keep consistent with username/password login flow
+
             localStorage.setItem("currentUser", JSON.stringify(u.data));
             const next = q.get("next");
             const role = u.data?.role;
@@ -230,10 +230,7 @@ const Login = () => {
                             </Card.Body>
                         </Card>
 
-                        {/* Footer phụ dưới Card */}
-                        <div className="text-center mt-4 small text-muted">
-                            &copy; {new Date().getFullYear()} English Learning Platform
-                        </div>
+
                     </Col>
                 </Row>
             </Container>
