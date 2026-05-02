@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Alert, Button, Form, Container, Row, Col, Card, InputGroup } from "react-bootstrap";
-import MySpinner from "./layout/MySpiner";   
+import MySpinner from "./layout/MySpiner";
 import Apis, { endpoints } from "./configs.js";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -13,7 +13,7 @@ const Register = () => {
     const [showPwd, setShowPwd] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
-    // Style đồng bộ với trang Login
+
     const styles = {
         pageWrapper: {
             background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
@@ -56,7 +56,7 @@ const Register = () => {
         }
     };
 
-    // Giữ nguyên logic validate và register của bạn...
+
     const validate = () => {
         const requiredFields = ['firstName', 'lastName', 'phone', 'email', 'username', 'password', 'confirm'];
         for (let field of requiredFields) {
@@ -128,13 +128,13 @@ const Register = () => {
                                         <Col md={6}>
                                             <Form.Group className="mb-4" controlId="firstName">
                                                 <Form.Label style={styles.label}>Tên</Form.Label>
-                                                <Form.Control style={styles.input} value={user.firstName || ""} onChange={e => setUser({...user, firstName: e.target.value})} type="text" placeholder="Ví dụ: Anh" />
+                                                <Form.Control style={styles.input} value={user.firstName || ""} onChange={e => setUser({ ...user, firstName: e.target.value })} type="text" placeholder="Ví dụ: Anh" />
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
                                             <Form.Group className="mb-4" controlId="lastName">
                                                 <Form.Label style={styles.label}>Họ và tên lót</Form.Label>
-                                                <Form.Control style={styles.input} value={user.lastName || ""} onChange={e => setUser({...user, lastName: e.target.value})} type="text" placeholder="Ví dụ: Nguyễn Văn" />
+                                                <Form.Control style={styles.input} value={user.lastName || ""} onChange={e => setUser({ ...user, lastName: e.target.value })} type="text" placeholder="Ví dụ: Nguyễn Văn" />
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -143,20 +143,20 @@ const Register = () => {
                                         <Col md={6}>
                                             <Form.Group className="mb-4" controlId="phone">
                                                 <Form.Label style={styles.label}>Số điện thoại</Form.Label>
-                                                <Form.Control style={styles.input} value={user.phone || ""} onChange={e => setUser({...user, phone: e.target.value})} type="tel" placeholder="09xxxxxxx" />
+                                                <Form.Control style={styles.input} value={user.phone || ""} onChange={e => setUser({ ...user, phone: e.target.value })} type="tel" placeholder="09xxxxxxx" />
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
                                             <Form.Group className="mb-4" controlId="email">
                                                 <Form.Label style={styles.label}>Email cá nhân</Form.Label>
-                                                <Form.Control style={styles.input} value={user.email || ""} onChange={e => setUser({...user, email: e.target.value})} type="email" placeholder="name@example.com" />
+                                                <Form.Control style={styles.input} value={user.email || ""} onChange={e => setUser({ ...user, email: e.target.value })} type="email" placeholder="name@example.com" />
                                             </Form.Group>
                                         </Col>
                                     </Row>
 
                                     <Form.Group className="mb-4" controlId="username">
                                         <Form.Label style={styles.label}>Tên đăng nhập</Form.Label>
-                                        <Form.Control style={styles.input} value={user.username || ""} onChange={e => setUser({...user, username: e.target.value})} type="text" placeholder="Ít nhất 3 ký tự" />
+                                        <Form.Control style={styles.input} value={user.username || ""} onChange={e => setUser({ ...user, username: e.target.value })} type="text" placeholder="Ít nhất 3 ký tự" />
                                     </Form.Group>
 
                                     <Row>
@@ -164,8 +164,8 @@ const Register = () => {
                                             <Form.Group className="mb-4" controlId="password">
                                                 <Form.Label style={styles.label}>Mật khẩu</Form.Label>
                                                 <InputGroup>
-                                                    <Form.Control style={{...styles.input, borderTopRightRadius: 0, borderBottomRightRadius: 0}} value={user.password || ""} onChange={e => setUser({...user, password: e.target.value})} type={showPwd ? "text" : "password"} placeholder="••••••••" />
-                                                    <Button variant="outline-light" style={{border: "1px solid #dee2e6", color: "#6c757d", fontSize: "0.8rem"}} onClick={() => setShowPwd(!showPwd)}>
+                                                    <Form.Control style={{ ...styles.input, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} value={user.password || ""} onChange={e => setUser({ ...user, password: e.target.value })} type={showPwd ? "text" : "password"} placeholder="••••••••" />
+                                                    <Button variant="outline-light" style={{ border: "1px solid #dee2e6", color: "#6c757d", fontSize: "0.8rem" }} onClick={() => setShowPwd(!showPwd)}>
                                                         {showPwd ? "ẨN" : "HIỆN"}
                                                     </Button>
                                                 </InputGroup>
@@ -175,8 +175,8 @@ const Register = () => {
                                             <Form.Group className="mb-4" controlId="confirm">
                                                 <Form.Label style={styles.label}>Xác nhận lại</Form.Label>
                                                 <InputGroup>
-                                                    <Form.Control style={{...styles.input, borderTopRightRadius: 0, borderBottomRightRadius: 0}} value={user.confirm || ""} onChange={e => setUser({...user, confirm: e.target.value})} type={showConfirm ? "text" : "password"} placeholder="••••••••" />
-                                                    <Button variant="outline-light" style={{border: "1px solid #dee2e6", color: "#6c757d", fontSize: "0.8rem"}} onClick={() => setShowConfirm(!showConfirm)}>
+                                                    <Form.Control style={{ ...styles.input, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} value={user.confirm || ""} onChange={e => setUser({ ...user, confirm: e.target.value })} type={showConfirm ? "text" : "password"} placeholder="••••••••" />
+                                                    <Button variant="outline-light" style={{ border: "1px solid #dee2e6", color: "#6c757d", fontSize: "0.8rem" }} onClick={() => setShowConfirm(!showConfirm)}>
                                                         {showConfirm ? "ẨN" : "HIỆN"}
                                                     </Button>
                                                 </InputGroup>
@@ -186,7 +186,7 @@ const Register = () => {
 
                                     <Form.Group className="mb-4" controlId="avatar">
                                         <Form.Label style={styles.label}>Ảnh đại diện (Tùy chọn)</Form.Label>
-                                        <Form.Control style={{...styles.input, paddingTop: "8px"}} type="file" ref={avatar} accept="image/*" />
+                                        <Form.Control style={{ ...styles.input, paddingTop: "8px" }} type="file" ref={avatar} accept="image/*" />
                                         <Form.Text className="text-muted italic small">Định dạng hỗ trợ: JPG, PNG, WEBP</Form.Text>
                                     </Form.Group>
 
@@ -211,7 +211,7 @@ const Register = () => {
                 </Row>
             </Container>
         </div>
-    ); 
+    );
 }
 
 export default Register;

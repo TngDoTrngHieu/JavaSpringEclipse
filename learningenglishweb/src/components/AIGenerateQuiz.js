@@ -3,6 +3,7 @@ import { Button, Form, Spinner, Card, ProgressBar, Toast, ToastContainer, Modal 
 import axios from "axios";
 import cookie from "react-cookies";
 import { useNavigate } from "react-router-dom";
+import { authApis, endpoints } from "./configs";
 
 const AIGenerateQuiz = () => {
     const navigate = useNavigate();
@@ -50,11 +51,7 @@ const AIGenerateQuiz = () => {
 
         setLoading(true);
         try {
-            const resp = await axios.post(
-                "/api/ai/generate-quiz",
-                { passage },
-                { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }
-            );
+            const resp = await authApis().post("/api/ai/generate-quiz", { passage });
 
             const data = resp.data;
             if (Array.isArray(data)) {
@@ -88,9 +85,9 @@ const AIGenerateQuiz = () => {
 
         let mounted = true;
         setVipChecking(true);
-        axios
-            .get("/api/user/is-vip", { headers: { Authorization: `Bearer ${token}` } })
-            .then((res) => mounted && setIsVip(res?.data?.vip === true))
+        authApis()
+            .get(endpoints.profile)
+            .then((res) => mounted && setIsVip(res?.data?.isVip === true))
             .catch(() => mounted && setIsVip(false))
             .finally(() => mounted && setVipChecking(false));
 

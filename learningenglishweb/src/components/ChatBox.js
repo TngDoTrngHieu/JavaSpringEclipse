@@ -4,7 +4,9 @@ import cookie from "react-cookies";
 import { useNavigate } from "react-router-dom";
 // 1. Import thêm Toast và ToastContainer từ react-bootstrap
 import { Toast, ToastContainer, Modal, Button } from "react-bootstrap";
+import { authApis, endpoints } from "./configs";
 
+// ensure default axios base is configured for non-auth calls
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 export default function ChatBox() {
@@ -35,11 +37,12 @@ export default function ChatBox() {
 
         let mounted = true;
         setVipChecking(true);
-        axios
-            .get("/api/user/is-vip", { headers: { Authorization: token ? `Bearer ${token}` : undefined } })
+        // backend exposes profile at /api/users/profile which includes isVip
+        authApis()
+            .get(endpoints.profile)
             .then((res) => {
                 if (!mounted) return;
-                setIsVip(res?.data?.vip === true);
+                setIsVip(res?.data?.isVip === true);
             })
             .catch(() => {
                 if (!mounted) return;
@@ -74,13 +77,7 @@ export default function ChatBox() {
         setLoading(true);
 
         try {
-            const res = await axios.post(
-                "/api/chat",
-                { question: message },
-                {
-                    headers: { Authorization: token ? `Bearer ${token}` : undefined },
-                }
-            );
+            const res = await authApis().post("/api/chat", { question: message });
 
             const answer = res?.data?.answer ?? "(không có trả lời)";
             setMessages((prev) => [...prev, { role: "bot", text: "" }]);

@@ -41,7 +41,7 @@ export const endpoints = {
 
 };
 
-/** Spring /register yeu cau multipart; bo Content-Type de browser them boundary. */
+
 const stripContentTypeForFormData = (config) => {
     if (config.data instanceof FormData) {
         const h = config.headers;

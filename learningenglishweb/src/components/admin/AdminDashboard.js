@@ -36,7 +36,6 @@ const AdminDashboard = () => {
                 api.get(endpoints.users),
                 api.get(endpoints.lessons),
                 api.get(endpoints.categories),
-
                 api.get(endpoints.payments),
             ]);
             setCounts({

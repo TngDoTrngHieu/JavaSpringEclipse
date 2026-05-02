@@ -181,7 +181,6 @@ public class UserService {
 		Map<String, Object> data = new HashMap<>();
 		data.put("id", user.getId());
 		data.put("username", user.getUsername());
-		// include role so frontend can show admin UI when appropriate
 		data.put("role", user.getRole() != null ? user.getRole().name() : "USER");
 
 		Optional<com.th.learningenglish.pojo.UserVips> vipOpt = userVipRepository
@@ -195,7 +194,6 @@ public class UserService {
 			data.put("isVip", false);
 			data.put("vipExpireAt", null);
 		}
-
 		data.put("firstname", user.getFirstname());
 		data.put("lastname", user.getLastname());
 		data.put("email", user.getEmail());
@@ -204,7 +202,6 @@ public class UserService {
 		return data;
 	}
 
-	// Trả về true nếu user đang có gói VIP còn hạn
 	public boolean isUserVip(String username) {
 		Users user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 		return userVipRepository.existsByUserIdAndExpireAtAfter(user.getId(), LocalDateTime.now());
