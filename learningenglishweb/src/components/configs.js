@@ -38,8 +38,6 @@ export const endpoints = {
     studyPlanMy: "/api/study-plans/my",
     studyPlanCreate: "/api/study-plans",
     practiceHistory: "/api/practice-sessions/my",
-    progressTrackerMy: "/api/progress-trackers/my",
-    userAnswerHistoryMy: "/api/user-answers/my",
     changePassword: "/api/users/change-password",
 
 };

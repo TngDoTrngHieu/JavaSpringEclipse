@@ -36,10 +36,10 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-						.requestMatchers("/error").permitAll().requestMatchers("/api/payments/confirm/momo-ipn")
-						.permitAll().requestMatchers("/api/payments/momo/return").permitAll()
-						.anyRequest().authenticated())
+				.authorizeHttpRequests(
+						auth -> auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/error").permitAll()
+								.requestMatchers("/api/payments/confirm/momo-ipn").permitAll()
+								.requestMatchers("/api/payments/momo/return").permitAll().anyRequest().authenticated())
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
 
 		return http.build();
@@ -48,7 +48,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(java.util.List.of("http://localhost:3000"));
+		config.setAllowedOrigins(java.util.List.of("https://java-spring-eclipse.vercel.app"));
 		config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(java.util.List.of("*"));
 		config.setAllowCredentials(true);
