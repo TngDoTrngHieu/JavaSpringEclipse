@@ -1,8 +1,7 @@
 import axios from "axios";
 import cookie from "react-cookies";
 
-/** Dev: de trong + proxy trong package.json. Prod: set REACT_APP_API_BASE_URL */
-const BASE_URL = process.env.REACT_APP_API_BASE_URL ?? "";
+const BASE_URL = "https://javaspringeclipse-production.up.railway.app";
 
 export const endpoints = {
     login: "/api/auth/login",
