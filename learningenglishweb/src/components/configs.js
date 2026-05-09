@@ -19,6 +19,7 @@ export const endpoints = {
     vipPackages: "/api/vip-packages",
     vocabularyById: (id) => `/api/vocabularies/${id}`,
     vocabularySearch: "/api/vocabularies/search",
+    vocabularyFromAi: "/api/vocabularies/from-ai",
     lessons: "/api/lessons",
     lessonById: (id) => `/api/lessons/${id}`,
     lessonTypes: "/api/lesson-types",

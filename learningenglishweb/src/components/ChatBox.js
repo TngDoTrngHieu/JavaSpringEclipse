@@ -92,11 +92,7 @@ export default function ChatBox() {
 
     const saveWord = async (text) => {
         try {
-            await axios.post(
-                "/api/vocabularies/from-ai",
-                { text },
-                { headers: { Authorization: token ? `Bearer ${token}` : undefined } }
-            );
+            await authApis().post(endpoints.vocabularyFromAi, { text });
         } catch (err) {
             throw err;
         }
