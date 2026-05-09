@@ -101,19 +101,19 @@ const ListeningPage = () => {
                                 <b>{index + 1}.</b> {q.question}
                             </h6>
 
-                           {/* MULTIPLE CHOICE */}
-                           {q.type === "MULTIPLE_CHOICE" && (
+                            {/* MULTIPLE CHOICE */}
+                            {q.type === "MULTIPLE_CHOICE" && (
                                 <div className="d-flex flex-column gap-2">
                                     {q.options.map((opt, i) => {
                                         const label = String.fromCharCode(65 + i);
-                                        
+
                                         // 1. So sánh chuỗi an toàn
                                         const safeOpt = String(opt).trim().toLowerCase();
                                         const safeUserAns = String(userAns).trim().toLowerCase();
                                         const safeCorrectAns = String(correctAns).trim().toLowerCase();
 
                                         let variant = "outline-secondary";
-                                        
+
                                         // 2. Logic tô màu
                                         if (result) {
                                             // NẾU ĐÃ NỘP BÀI:

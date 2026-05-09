@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import axios from "axios";
 import cookie from "react-cookies";
 import { useNavigate } from "react-router-dom";
 import { Toast, ToastContainer, Modal, Button } from "react-bootstrap";
