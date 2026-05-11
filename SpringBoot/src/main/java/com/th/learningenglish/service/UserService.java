@@ -276,6 +276,14 @@ public class UserService {
 	}
 
 	public Users getUserByEmail(String email) {
+		email = email.trim().toLowerCase();
+
+		System.out.println("EMAIL SAU TRIM: [" + email + "]");
+
+		Optional<Users> user = userRepository.findByEmail(email);
+
+		System.out.println("KET QUA QUERY: " + user);
+
 		return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 	}
 }

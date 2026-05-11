@@ -91,6 +91,7 @@ public class AuthController {
 
 		try {
 			Users u = userService.getUserByEmail(email);
+			System.out.println("EMAIL NHAN: [" + email + "]");
 			String token = JwtUtils.generateResetToken(email, 5 * 60 * 1000);
 			String link = "https://java-spring-eclipse.vercel.app/reset-password?token=" + token;
 			emailService.sendResetLink(email, link);
