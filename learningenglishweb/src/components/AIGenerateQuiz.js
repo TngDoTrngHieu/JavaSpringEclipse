@@ -30,14 +30,14 @@ const AIGenerateQuiz = () => {
             showToast("Bạn chưa nhập đoạn văn. Hãy thêm nội dung để hệ thống tạo câu hỏi.");
             return;
         }
-        // Check login
+
         const token = cookie.load("token");
         if (!token) {
             showToast("Bạn cần đăng nhập để sử dụng tính năng tạo câu hỏi AI.");
             return;
         }
 
-        // Check VIP cached state
+
         if (isVip === false) {
             setShowVipModal(true);
             return;
@@ -47,11 +47,9 @@ const AIGenerateQuiz = () => {
             showToast("Đang xác minh quyền truy cập VIP. Vui lòng thử lại sau vài giây.");
             return;
         }
-
         setLoading(true);
         try {
             const resp = await authApis().post("/api/ai/generate-quiz", { passage });
-
             const data = resp.data;
             if (Array.isArray(data)) {
                 setResult(data);
@@ -93,7 +91,7 @@ const AIGenerateQuiz = () => {
         return () => (mounted = false);
     }, []);
 
-    // Hàm tính điểm an toàn (Sử dụng Optional Chaining)
+
     const calculateScore = () => {
         if (!result) return 0;
         return result.reduce((score, q, idx) => {
@@ -101,7 +99,7 @@ const AIGenerateQuiz = () => {
         }, 0);
     };
 
-    // Hàm reset an toàn
+
     const handleReset = () => {
         setResult(null);
         setPassage("");
@@ -112,7 +110,7 @@ const AIGenerateQuiz = () => {
         <div className="container py-4">
             <h4>Hệ thống luyện tập Reading</h4>
 
-            {/* MÀN HÌNH NHẬP LIỆU */}
+
             {!result && !loading && (
                 <Card className="shadow-sm">
                     <Card.Body>
@@ -139,11 +137,11 @@ const AIGenerateQuiz = () => {
                 </div>
             )}
 
-            {/* GIAO DIỆN LÀM BÀI - Đã bọc kiểm tra null chặt chẽ */}
+
             {result && Array.isArray(result) && result.length > 0 && !quizFinished && (
                 <Card className="shadow">
                     <Card.Header>
-                        {/* Sử dụng ?. để tránh lỗi length khi result bị null bất ngờ */}
+
                         <ProgressBar
                             now={((currentStep + 1) / (result?.length || 1)) * 100}
                             label={`${currentStep + 1}/${result?.length || 0}`}
@@ -185,7 +183,7 @@ const AIGenerateQuiz = () => {
                             <h2 className="text-success fw-bold">Kết quả: {calculateScore()} / {result?.length || 0}</h2>
                         </div>
 
-                        {/* Danh sách xem lại đáp án */}
+
                         <div className="mt-4">
                             <h5 className="mb-3 fw-bold border-bottom pb-2">Chi tiết bài làm:</h5>
                             {result.map((q, idx) => {
@@ -197,23 +195,23 @@ const AIGenerateQuiz = () => {
                                         <Card.Body>
                                             <h6 className="fw-bold mb-3">Câu {idx + 1}: {q.question}</h6>
 
-                                            {/* Hiện hết tất cả 4 đáp án A, B, C, D */}
+
                                             <div className="d-flex flex-column gap-2 mb-3">
                                                 {q.options?.map((op, i) => {
-                                                    // Logic tô màu đáp án
+
                                                     let bgClass = "bg-white border";
                                                     let textClass = "text-dark";
 
                                                     if (op === userAnswer && isCorrect) {
-                                                        // Chọn đúng -> Nền xanh lá
+
                                                         bgClass = "bg-success border-success";
                                                         textClass = "text-white";
                                                     } else if (op === userAnswer && !isCorrect) {
-                                                        // Chọn sai -> Nền đỏ
+
                                                         bgClass = "bg-danger border-danger";
                                                         textClass = "text-white";
                                                     } else if (op === q.correctAnswer) {
-                                                        // Đáp án đúng (mà người dùng không chọn) -> Viền xanh chữ xanh
+
                                                         bgClass = "bg-white border-success";
                                                         textClass = "text-success fw-bold";
                                                     }

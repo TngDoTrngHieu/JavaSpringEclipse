@@ -1,11 +1,11 @@
 package com.th.learningenglish.controller;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Objects;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +27,8 @@ import com.th.learningenglish.service.LessonsService;
 import com.th.learningenglish.service.PracticeSessionService;
 import com.th.learningenglish.service.ProgressTrackerService;
 import com.th.learningenglish.service.SectionService;
-import com.th.learningenglish.service.UserService;
 import com.th.learningenglish.service.UserAnswerService;
+import com.th.learningenglish.service.UserService;
 
 @RestController
 @RequestMapping("/api/listening")
@@ -69,8 +69,6 @@ public class ApiListeningController {
 			int score = 0;
 			int total = 0;
 
-			// Map for frontend to show correct answers: sectionId (string) -> raw correct
-			// answer
 			Map<String, String> correctAnswers = new HashMap<>();
 			Map<Long, String> rawCorrectAnswersBySectionId = new HashMap<>();
 
@@ -84,7 +82,6 @@ public class ApiListeningController {
 					continue;
 				}
 
-				// store raw value for frontend display/highlight
 				correctAnswers.put(String.valueOf(s.getId()), rawCorrect == null ? null : rawCorrect);
 				rawCorrectAnswersBySectionId.put(s.getId(), rawCorrect);
 
@@ -96,15 +93,12 @@ public class ApiListeningController {
 			}
 
 			BigDecimal finalScore = BigDecimal.valueOf(score);
-			PracticeSessions session = practiceSessionService.recordSession(
-					user.getId(),
-					lesson.getId(),
-					finalScore,
-					0,
+			PracticeSessions session = practiceSessionService.recordSession(user.getId(), lesson.getId(), finalScore, 0,
 					"Listening score: " + score + "/" + total);
 
 			for (Sections section : sections) {
-				if (section == null || section.getId() == null || !rawCorrectAnswersBySectionId.containsKey(section.getId())) {
+				if (section == null || section.getId() == null
+						|| !rawCorrectAnswersBySectionId.containsKey(section.getId())) {
 					continue;
 				}
 
@@ -123,10 +117,7 @@ public class ApiListeningController {
 
 			progressTrackerService.updateProgress(user.getId(), ProgressTrackers.Skill.LISTENING, finalScore);
 
-			return ResponseEntity.ok(Map.of(
-					"score", score,
-					"total", total,
-					"correctAnswers", correctAnswers));
+			return ResponseEntity.ok(Map.of("score", score, "total", total, "correctAnswers", correctAnswers));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
 		}
@@ -157,7 +148,6 @@ public class ApiListeningController {
 				if (node.has("answer")) {
 					return node.path("answer").asText(null);
 				}
-				// Single-key object: { "A": "..." } or arbitrary wrapper
 				if (node.size() == 1) {
 					return node.elements().next().asText(null);
 				}
@@ -169,7 +159,7 @@ public class ApiListeningController {
 				return node.get(0).asText(null);
 			}
 		} catch (Exception ignored) {
-			// Fallback: correctAnswer is plain text in DB.
+
 		}
 		return trimmed;
 	}

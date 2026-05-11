@@ -33,9 +33,8 @@ public class GeminiService {
 			.writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS).build();
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	// Dùng bản flash (không phải lite) cho các tác vụ chấm điểm phức tạp
 	private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
-	// Dùng bản lite cho hàm ask cơ bản nếu muốn tiết kiệm
+
 	private static final String GEMINI_LITE_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent";
 
 	// 1. ask vocab
@@ -110,7 +109,7 @@ public class GeminiService {
 		ArrayNode contents = mapper.createArrayNode();
 		root.set("contents", contents);
 
-		// Turn 1: Text Prompt + Image
+		// Text Prompt + Image
 		ArrayNode parts1 = mapper.createArrayNode();
 		parts1.add(obj("text", prompt));
 
@@ -166,7 +165,7 @@ public class GeminiService {
 		return sendRequestToGemini(root, GEMINI_URL);
 	}
 
-	// 5. TẠO CÂU HỎI TRẮC NGHIỆM TỪ ĐOẠN VĂN (JSON ARRAY)
+	// 5. TẠO CÂU HỎI TRẮC NGHIỆM TỪ ĐOẠN VĂN
 	public String generateQuizFromPassage(String passage) throws Exception {
 		String prompt = """
 				You are an IELTS reading question generator.
@@ -214,7 +213,7 @@ public class GeminiService {
 		return executeAndParseResponse(request);
 	}
 
-	// Thực thi HTTP Request và bóc tách lấy text (Tái sử dụng logic cũ của bạn)
+	// Thực thi HTTP Request và bóc tách lấy text
 	private String executeAndParseResponse(Request request) throws Exception {
 		System.out.println("🚀 START CALL GEMINI");
 		try (Response response = client.newCall(request).execute()) {
@@ -240,7 +239,6 @@ public class GeminiService {
 
 			String result = textNode.get(0).path("text").asText();
 
-			// Xóa thẻ ```json và ``` nếu Gemini trả về markdown bọc ngoài
 			result = result.replaceAll("^```json\\s*", "").replaceAll("\\s*```$", "").trim();
 
 			return result;

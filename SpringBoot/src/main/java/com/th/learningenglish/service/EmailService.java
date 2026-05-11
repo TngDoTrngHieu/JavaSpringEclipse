@@ -23,7 +23,7 @@ public class EmailService {
 
 	public void sendResetLink(String toEmail, String link) {
 		SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom("email_cua_ban@gmail.com");
+		message.setFrom("hieuthuhai11b3@gmail.com");
 		message.setTo(toEmail);
 		message.setSubject("Khôi phục mật khẩu - Learn English Web");
 		message.setText("Click vào liên kết để đặt lại mật khẩu (hết hạn trong 5 phút): " + link);

@@ -18,7 +18,6 @@ public class ChatService {
 		try {
 			context = vocabularyService.buildRagContext(username, message);
 		} catch (Exception e) {
-			// ignore context building errors and proceed without RAG
 			context = "";
 		}
 

@@ -114,9 +114,9 @@ export default function WritingPage() {
 
       {error && <Alert variant="danger">{error}</Alert>}
 
-      {/* Main Content */}
+
       <Row>
-        {/* Cột Đề bài */}
+
         <Col md={5} className="mb-3">
           <Card className="h-100 shadow-sm">
             <Card.Header className="bg-white">
@@ -137,7 +137,7 @@ export default function WritingPage() {
           </Card>
         </Col>
 
-        {/* Cột Khung viết bài */}
+
         <Col md={7} className="mb-3">
           <Card className="h-100 shadow-sm">
             <Card.Header className="bg-white d-flex justify-content-between align-items-center">
@@ -163,7 +163,7 @@ export default function WritingPage() {
         </Col>
       </Row>
 
-      {/* Popup Kết quả (Modal) */}
+
       <Modal show={result !== null} onHide={() => setResult(null)} backdrop="static" size="lg" centered>
         <Modal.Header>
           <Modal.Title className="text-success fw-bold">Kết quả chấm bài</Modal.Title>

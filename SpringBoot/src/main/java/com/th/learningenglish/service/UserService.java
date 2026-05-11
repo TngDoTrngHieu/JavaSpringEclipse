@@ -58,7 +58,7 @@ public class UserService {
 		user.setLastname(req.getLastname());
 		user.setEmail(req.getEmail());
 		user.setUsername(req.getUsername());
-		// 🔐 encode password
+
 		user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
 
 		// 📸 xử lý avatar

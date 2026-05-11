@@ -101,14 +101,9 @@ public class ApiUserWritingAnswerController {
 			int duration = req.containsKey("durationSeconds") ? Integer.parseInt(req.get("durationSeconds").toString())
 					: 0;
 
-			// Fetch lesson TRƯỚC rồi mới dùng
 			Lessons lesson = lessonsService.getLessonByIdWithLessonType(lessonId);
-
-			// Giờ mới detect taskType
 			String lessonTypeName = lesson.getLessonType().getName().toLowerCase();
 			String taskType = lessonTypeName.contains("task 1") ? "task1" : "task2";
-
-			// Gọi đúng method theo taskType
 			String jsonResult;
 			if ("task1".equals(taskType) && lesson.getImageUrl() != null) {
 				jsonResult = geminiService.evaluateTask1Essay(essay, lesson.getImageUrl());

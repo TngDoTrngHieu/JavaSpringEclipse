@@ -63,7 +63,7 @@ public class LessonsService {
 		return lessonRepo.findAll();
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public List<Lessons> getLessons(Map<String, String> params) {
 		if (params == null || params.isEmpty()) {
 			return lessonRepo.findAll();
@@ -91,20 +91,20 @@ public class LessonsService {
 		return lessonRepo.findAll();
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public Lessons getLessonById(Long id) {
 		validateLessonId(id, "getLessonById");
 		return lessonRepo.findById(id).orElseThrow(() -> new RuntimeException("Lesson not found for id=" + id));
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public Lessons getLessonByIdWithLessonType(Long id) {
 		validateLessonId(id, "getLessonByIdWithLessonType");
 		return lessonRepo.findByIdWithLessonType(id)
 				.orElseThrow(() -> new RuntimeException("Lesson not found for id=" + id));
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public LessonDetailDTO getLessonDetail(Long lessonId) {
 		validateLessonId(lessonId, "getLessonDetail");
 		Lessons lesson = lessonRepo.findById(lessonId)
@@ -118,7 +118,7 @@ public class LessonsService {
 		return buildLessonDetailDto(lesson, sections);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public ResultDTO submit(SubmitRequest req) {
 		if (req == null) {
 			throw new IllegalArgumentException("SubmitRequest must not be null");
@@ -160,7 +160,8 @@ public class LessonsService {
 	}
 
 	@Transactional
-	public Lessons createLessonFromForm(String title, String content, Long categoryId, Long lessonTypeId, String imageUrl) {
+	public Lessons createLessonFromForm(String title, String content, Long categoryId, Long lessonTypeId,
+			String imageUrl) {
 		validatePositiveId(categoryId, "categoryId");
 		validatePositiveId(lessonTypeId, "lessonTypeId");
 		Categories category = categoryRepo.findById(categoryId)
@@ -224,7 +225,8 @@ public class LessonsService {
 		validatePositiveId(categoryId, "categoryId");
 		validatePositiveId(lessonTypeId, "lessonTypeId");
 
-		Lessons lesson = lessonRepo.findById(id).orElseThrow(() -> new RuntimeException("Lesson not found for id=" + id));
+		Lessons lesson = lessonRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Lesson not found for id=" + id));
 		Categories category = categoryRepo.findById(categoryId)
 				.orElseThrow(() -> new RuntimeException("Category not found for categoryId=" + categoryId));
 		LessonTypes lessonType = lessonTypeRepo.findById(lessonTypeId)
@@ -555,8 +557,6 @@ public class LessonsService {
 				return out;
 			}
 			if (n.isObject()) {
-				// Dùng fields() thay vì fieldNames() — JsonNode không luôn có fieldNames()
-				// (Eclipse/Jackson 2.x)
 				List<String> keys = new ArrayList<>();
 				for (Iterator<Entry<String, JsonNode>> it = n.fields(); it.hasNext();) {
 					keys.add(it.next().getKey());

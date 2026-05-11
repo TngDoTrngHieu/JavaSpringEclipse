@@ -26,14 +26,12 @@ public class ApiChatController {
 	@PostMapping
 	public ResponseEntity<?> chat(@RequestBody Map<String, String> req, Principal principal) {
 
-		// 1. Kiểm tra đăng nhập
 		if (principal == null) {
 			return ResponseEntity.status(401).body(Map.of("error", "Bạn cần đăng nhập để sử dụng AI Chat."));
 		}
-
-		// 2. Kiểm tra VIP
 		if (!userService.isUserVip(principal.getName())) {
-			return ResponseEntity.status(403).body(Map.of("error", "Tính năng AI Chat hiện chỉ dành cho thành viên VIP."));
+			return ResponseEntity.status(403)
+					.body(Map.of("error", "Tính năng AI Chat hiện chỉ dành cho thành viên VIP."));
 		}
 
 		String question = req.get("question");

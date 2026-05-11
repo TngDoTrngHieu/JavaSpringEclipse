@@ -61,7 +61,7 @@ public class VocabularyService {
 		return vocabRepo.save(v);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public List<Vocabularies> getByUser(String username) {
 		Users user = getUserByUsername(username);
 		return vocabRepo.findByUser(user);
@@ -79,7 +79,7 @@ public class VocabularyService {
 		vocabRepo.delete(v);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public List<Vocabularies> search(String keyword, String username) {
 		Users user = getUserByUsername(username);
 		if (!StringUtils.hasText(keyword)) {
@@ -88,10 +88,9 @@ public class VocabularyService {
 		return vocabRepo.findByUserAndWordContainingIgnoreCase(user, keyword.trim());
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public Vocabularies getOne(Long id, String username) {
-		Vocabularies v = vocabRepo.findById(id)
-				.orElseThrow(() -> new RuntimeException("Not found"));
+		Vocabularies v = vocabRepo.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
 
 		if (v.getUser() == null || !v.getUser().getUsername().equals(username)) {
 			throw new RuntimeException("Unauthorized");
@@ -100,7 +99,7 @@ public class VocabularyService {
 		return v;
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public String buildRagContext(String username, String question) {
 		Users user = getUserByUsername(username);
 
@@ -112,10 +111,7 @@ public class VocabularyService {
 
 		List<Vocabularies> list = vocabRepo.findByUser(user);
 
-		list = list.stream()
-				.filter(v -> v.getWord() != null &&
-						v.getWord().toLowerCase().contains(keyword))
-				.limit(3)
+		list = list.stream().filter(v -> v.getWord() != null && v.getWord().toLowerCase().contains(keyword)).limit(3)
 				.toList();
 
 		if (list.isEmpty()) {

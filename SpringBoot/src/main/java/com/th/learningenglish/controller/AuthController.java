@@ -91,10 +91,8 @@ public class AuthController {
 
 		try {
 			Users u = userService.getUserByEmail(email);
-			// generate reset token (5 minutes)
 			String token = JwtUtils.generateResetToken(email, 5 * 60 * 1000);
-			// build link (frontend host assumed)
-			String link = "http://localhost:3000/reset-password?token=" + token;
+			String link = "https://java-spring-eclipse.vercel.app/reset-password?token=" + token;
 			emailService.sendResetLink(email, link);
 
 			return ResponseEntity.ok(Collections.singletonMap("message", "Email đã được gửi tới gmail"));

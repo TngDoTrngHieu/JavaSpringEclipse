@@ -10,6 +10,7 @@ const ForgotPage = () => {
 
     const send = async () => {
         setErr(""); setMsg("");
+        console.log(email);
         if (!email) { setErr("Vui lòng nhập email"); return; }
         setLoading(true);
         try {
@@ -32,7 +33,7 @@ const ForgotPage = () => {
                             <Form onSubmit={(e) => { e.preventDefault(); send(); }}>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Địa chỉ email</Form.Label>
-                                    <Form.Control value={email} onChange={e => setEmail(e.target.value)} />
+                                    <Form.Control autoComplete="off" value={email} onChange={e => setEmail(e.target.value)} />
                                 </Form.Group>
                                 <div className="d-grid gap-2">
                                     <Button type="submit" variant="primary" disabled={loading}>{loading ? <><Spinner size="sm" className="me-2" />Đang gửi...</> : "Gửi link khôi phục"}</Button>

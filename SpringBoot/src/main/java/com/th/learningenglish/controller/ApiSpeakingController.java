@@ -65,14 +65,12 @@ public class ApiSpeakingController {
 		this.progressTrackerService = progressTrackerService;
 	}
 
-	// Upload audio lên R2
 	@PostMapping("/upload")
 	public Map<String, Object> upload(@RequestParam("audio") MultipartFile audio) throws Exception {
 		String url = r2Service.upload(audio);
 		return Map.of("audioUrl", url);
 	}
 
-	// Submit transcript + audioUrl để chấm điểm
 	@PostMapping("/submit")
 	@Transactional
 	public ResponseEntity<?> submit(@RequestBody Map<String, Object> req, Principal principal) {
@@ -86,7 +84,6 @@ public class ApiSpeakingController {
 			if (transcript == null || transcript.isBlank())
 				return ResponseEntity.badRequest().body(Map.of("error", "Transcript is required"));
 
-			// Fetch lesson + questions từ sections
 			Lessons lesson = lessonsService.getLessonByIdWithLessonType(lessonId);
 
 			List<Sections> sections = sectionService.getSectionsByLesson(lessonId);
@@ -111,8 +108,6 @@ public class ApiSpeakingController {
 					questions.add(s.getQuestion());
 				}
 			}
-
-			// Chấm điểm bằng Gemini
 			String jsonResult = geminiService.evaluateSpeakingTranscript(lesson.getTitle(), questions, transcript);
 
 			JsonNode node = mapper.readTree(jsonResult);
