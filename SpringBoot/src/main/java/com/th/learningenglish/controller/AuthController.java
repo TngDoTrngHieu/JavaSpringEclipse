@@ -90,37 +90,21 @@ public class AuthController {
 		if (email == null || email.isBlank()) {
 			return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Email is required"));
 		}
-
 		try {
-
 			email = email.trim().toLowerCase();
-
 			System.out.println("EMAIL NHAN: [" + email + "]");
-
 			Users u = userService.getUserByEmail(email);
-
 			System.out.println("USER TIM THAY: " + u.getEmail());
-
 			String token = JwtUtils.generateResetToken(email, 5 * 60 * 1000);
-
 			String link = "https://java-spring-eclipse.vercel.app/reset-password?token=" + token;
-
 			System.out.println("RESET LINK: " + link);
-
 			emailService.sendResetLink(email, link);
-
 			return ResponseEntity.ok(Collections.singletonMap("message", "Email đã được gửi tới gmail"));
-
 		} catch (RuntimeException re) {
-
 			re.printStackTrace();
-
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", re.getMessage()));
-
 		} catch (Exception e) {
-
 			e.printStackTrace();
-
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(Collections.singletonMap("error", e.getMessage()));
 		}
