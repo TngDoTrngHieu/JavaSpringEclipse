@@ -99,7 +99,7 @@ const ThankYouVip = () => {
 
             <div className="d-grid">
               <Button variant="success" onClick={() => navigate("/upgrade-vip")}>
-                 Quay lạiại trang nâng cấp VIP
+                Quay lại trang nâng cấp VIP
               </Button>
             </div>
           </Card.Body>
