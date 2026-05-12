@@ -100,8 +100,8 @@ public class VocabularyService {
 	}
 
 	@Transactional
-	public String buildRagContext(String username, String question) {
-		Users user = getUserByUsername(username);
+	public String buildRagContext(String question) {
+		Users user = userRepo.findById(1L).orElseThrow(() -> new RuntimeException("User not found"));
 
 		if (question == null || question.trim().isEmpty()) {
 			return "";

@@ -16,7 +16,7 @@ public class ChatService {
 
 		String context = "";
 		try {
-			context = vocabularyService.buildRagContext(username, message);
+			context = vocabularyService.buildRagContext(message);
 		} catch (Exception e) {
 			context = "";
 		}

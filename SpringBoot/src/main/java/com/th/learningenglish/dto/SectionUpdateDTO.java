@@ -11,7 +11,6 @@ public class SectionUpdateDTO {
 	private String question;
 	private List<String> options;
 	private String correctAnswer;
-	/** JSON string — gap-fill / structured answer nếu cần */
 	private String answer;
 
 	public Long getId() {

@@ -2,9 +2,6 @@ package com.th.learningenglish.dto;
 
 import java.util.List;
 
-/**
- * GET /api/lessons/{id} — lesson + sections đã map (skill, type section, options[]).
- */
 public class LessonDetailDTO {
 
 	private Long id;

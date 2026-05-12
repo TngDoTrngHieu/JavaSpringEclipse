@@ -2,9 +2,6 @@ package com.th.learningenglish.dto;
 
 import java.util.List;
 
-/**
- * Full replace: lesson fields + toàn bộ sections (sync create / update / delete).
- */
 public class LessonUpdateDTO {
 
 	private String title;
