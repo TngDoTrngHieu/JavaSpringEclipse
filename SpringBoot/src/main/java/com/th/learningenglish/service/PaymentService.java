@@ -1,11 +1,12 @@
 package com.th.learningenglish.service;
 
 import static com.th.learningenglish.security.HmacUtil.hmacSHA256;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,8 +26,8 @@ import com.th.learningenglish.pojo.UserVips;
 import com.th.learningenglish.pojo.Users;
 import com.th.learningenglish.pojo.VipPackages;
 import com.th.learningenglish.repository.PaymentRepository;
-import com.th.learningenglish.repository.UserVipRepository;
 import com.th.learningenglish.repository.UserRepository;
+import com.th.learningenglish.repository.UserVipRepository;
 import com.th.learningenglish.repository.VipPackageRepository;
 
 @Service
@@ -135,6 +136,15 @@ public class PaymentService {
 		if (!signature.equals(calculatedSignature)) {
 			throw new RuntimeException("Invalid MoMo signature");
 		}
+		System.out.println("\n====== DEBUG MOMO IPN ======");
+		System.out.println("1. Chuỗi RAW tự ghép để băm:");
+		System.out.println(rawSignature);
+		System.out.println("2. Chữ ký từ Postman (hoặc MoMo) gửi lên:");
+		System.out.println(signature);
+		System.out.println("3. Chữ ký do code tự tính ra:");
+		System.out.println(calculatedSignature);
+		System.out.println("====================================================\n");
+		// ===================================================
 
 		int resultCode = parseInt(ipnPayload.get("resultCode"));
 		String transactionCode = safe(ipnPayload.get("orderId"));
@@ -198,7 +208,8 @@ public class PaymentService {
 			Map<String, String> params = new HashMap<>();
 			params.put("partnerCode", momoPartnerCode);
 			params.put("requestId", generateTransactionCode());
-			params.put("amount", normalizeAmount(payment.getAmount()).setScale(0, RoundingMode.HALF_UP).toPlainString());
+			params.put("amount",
+					normalizeAmount(payment.getAmount()).setScale(0, RoundingMode.HALF_UP).toPlainString());
 			params.put("orderId", payment.getTransactionCode());
 			params.put("orderInfo", "VIP package " + payment.getVipPackage().getId());
 			params.put("redirectUrl", momoRedirectUrl);
@@ -206,15 +217,10 @@ public class PaymentService {
 			params.put("requestType", "payWithMethod");
 			params.put("extraData", String.valueOf(payment.getId()));
 
-			String rawSignature = "accessKey=" + momoAccessKey
-					+ "&amount=" + params.get("amount")
-					+ "&extraData=" + params.get("extraData")
-					+ "&ipnUrl=" + params.get("ipnUrl")
-					+ "&orderId=" + params.get("orderId")
-					+ "&orderInfo=" + params.get("orderInfo")
-					+ "&partnerCode=" + params.get("partnerCode")
-					+ "&redirectUrl=" + params.get("redirectUrl")
-					+ "&requestId=" + params.get("requestId")
+			String rawSignature = "accessKey=" + momoAccessKey + "&amount=" + params.get("amount") + "&extraData="
+					+ params.get("extraData") + "&ipnUrl=" + params.get("ipnUrl") + "&orderId=" + params.get("orderId")
+					+ "&orderInfo=" + params.get("orderInfo") + "&partnerCode=" + params.get("partnerCode")
+					+ "&redirectUrl=" + params.get("redirectUrl") + "&requestId=" + params.get("requestId")
 					+ "&requestType=" + params.get("requestType");
 
 			String signature = hmacSHA256(rawSignature, momoSecretKey);
@@ -248,8 +254,8 @@ public class PaymentService {
 		if (p.getVipPackage() == null || p.getVipPackage().getId() == null) {
 			throw new RuntimeException("vip_package id is required");
 		}
-		p.setUser(userRepository.findById(p.getUser().getId())
-				.orElseThrow(() -> new RuntimeException("User not found")));
+		p.setUser(
+				userRepository.findById(p.getUser().getId()).orElseThrow(() -> new RuntimeException("User not found")));
 		p.setVipPackage(vipPackageRepository.findById(p.getVipPackage().getId())
 				.orElseThrow(() -> new RuntimeException("VIP package not found")));
 	}
@@ -312,7 +318,8 @@ public class PaymentService {
 	private void validateMomoConfig() {
 		if (safe(momoPartnerCode).isBlank() || safe(momoAccessKey).isBlank() || safe(momoSecretKey).isBlank()
 				|| safe(momoEndpoint).isBlank() || safe(momoRedirectUrl).isBlank() || safe(momoIpnUrl).isBlank()) {
-			throw new RuntimeException("MoMo config is missing (partnerCode/accessKey/secretKey/endpoint/redirectUrl/ipnUrl)");
+			throw new RuntimeException(
+					"MoMo config is missing (partnerCode/accessKey/secretKey/endpoint/redirectUrl/ipnUrl)");
 		}
 	}
 
@@ -323,9 +330,7 @@ public class PaymentService {
 
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime startAt = userVipRepository.findTopByUserIdOrderByExpireAtDesc(payment.getUser().getId())
-				.map(UserVips::getExpireAt)
-				.filter(expire -> expire.isAfter(now))
-				.orElse(now);
+				.map(UserVips::getExpireAt).filter(expire -> expire.isAfter(now)).orElse(now);
 		LocalDateTime expireAt = startAt.plusMonths(payment.getVipPackage().getMonths());
 
 		UserVips userVip = new UserVips();
